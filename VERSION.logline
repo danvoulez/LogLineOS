@@ -1,0 +1,16 @@
+- type: release
+  entity: loglineos
+  attributes:
+    version: "1.0.0"
+    date: "2025-07-07"
+    components:
+      - parser
+      - span_generator
+      - wasm_emitter
+      - stdlib.core
+      - stdlib.iot
+      - domain.iot
+      - domain.monitoring
+      - example.contract
+      - example.ui
+

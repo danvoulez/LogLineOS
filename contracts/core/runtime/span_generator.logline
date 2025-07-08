@@ -1,0 +1,16 @@
+# Span generator contract placeholder
+- type: contract
+  id: "core.runtime.span_generator"
+  name: "Span Generator"
+  description: "Gera spans a partir do AST"
+  actions:
+    - type: wasm_function
+      name: "generate"
+      export: true
+      params:
+        - name: "ast"
+          type: "json"
+      returns: "json"
+      body: |
+        ;; span generation logic would be implemented in WASM
+        nop

@@ -1,0 +1,16 @@
+- type: container
+  children:
+    - type: text
+      content: "Hello {{user.name}}!"
+    - type: loop
+      for: list
+      children:
+        - type: text
+          content: "Item: {{item}}"
+    - type: when
+      condition: show_button
+      children:
+        - type: button
+          label: "Send"
+    - type: text
+      content: "Public IP: {{http.get(\"https://ifconfig.me/ip\")}}"

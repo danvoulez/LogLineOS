@@ -1,0 +1,27 @@
+[
+  {
+    "type": "wasm",
+    "name": "logline_parser",
+    "source": "./logline_parser.wasm",
+    "export": "parse",
+    "input": "config: test_mode",
+    "output": "parsed_ast"
+  },
+  {
+    "type": "wasm",
+    "name": "span_generator",
+    "source": "./span_generator.wasm",
+    "export": "generate",
+    "input": "parsed_ast",
+    "output": "spans"
+  },
+  {
+    "type": "wasm",
+    "name": "wasm_emitter",
+    "source": "./wasm_emitter.wasm",
+    "export": "emit",
+    "input": "spans",
+    "output": "binary.wasm"
+  }
+]
+

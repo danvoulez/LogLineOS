@@ -1,0 +1,32 @@
+# 🌍 examples/kernelization_test.logline
+# Teste para a primeira capacidade WASM do runtime.
+
+- type: contract
+  id: "test.phase1.kernelization"
+  name: "Teste de Execução WASM"
+  description: "Verifica se o runtime Go pode carregar e executar um contrato compilado para WASM."
+  actions:
+    - type: log
+      message: "Iniciando teste de kernelization. Compilando contrato 'add_one'..."
+    - type: syscall.compile_logline_to_wasm
+      params:
+        - examples/simple_add_one.logline
+        - build/add_one.wasm
+      output: wasm_module_path
+    - type: log
+      message: "Compilação concluída. Módulo WASM em: {{ wasm_module_path }}"
+    - type: syscall.execute_wasm
+      params:
+        - {{ wasm_module_path }}
+        - main
+        - [41]
+      output: execution_result
+    - type: log
+      message: "Execução WASM retornou: {{ execution_result }}"
+    - type: assert
+      condition: {{ execution_result == 42 }}
+      on_failure: "ABORT('TEST_FAILED: O resultado da execução WASM não foi 42.')"
+  on_success:
+    - type: log
+      level: SUCCESS
+      message: "✅ Fase 1 (Kernelization) concluída com sucesso. O runtime pode compilar e executar WASM."

@@ -1,0 +1,22 @@
+- type: contract
+  id: "governance.charter.v1"
+  name: "Carta Magna da Fundacao LogLine"
+  description: "Define como propostas de melhoria sao votadas e aplicadas."
+  properties: { mutable: false }
+  actions:
+    - type: execution_rule
+      id: "rule.lip_approval"
+      when: { type: "governance_vote.completed", payload.proposal_type: "LIP" }
+      then:
+        - type: wasm
+          name: "calculate_vote_outcome"
+          source: "./vote_calculator.wasm"
+          input: "{{ when.payload }}"
+          output: "vote_result"
+        - type: conditional
+          if: "{{ vote_result.passed == true }}"
+          then:
+            - type: syscall.git_merge_and_recompile
+              params:
+                branch: "{{ when.payload.proposal_branch }}"
+                message: "LIP {{ when.payload.lip_id }} Aprovada. {{ when.payload.title }}"

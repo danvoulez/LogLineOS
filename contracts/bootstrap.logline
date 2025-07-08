@@ -1,0 +1,71 @@
+- type: register
+  id: "logline.kernel"
+  description: "Executor declarativo inicial do sistema"
+  tags: ["core", "runtime", "bootstrap"]
+
+- type: execution_rule
+  when:
+    type: wasm
+  then:
+    kernel_action: wasm_exec
+
+- type: execution_rule
+  when:
+    type: generate_span
+  then:
+    kernel_action: span_generator
+
+- type: execution_rule
+  when:
+    type: execution_rule
+  then:
+    kernel_action: register_execution_rule
+
+- type: load_file
+  path: "core/parser/logline_parser.logline"
+  mount_as: "logline.parser"
+  on_error: ignore
+
+- type: load_file
+  path: "core/codegen/wasm_emitter.logline"
+  mount_as: "logline.codegen"
+  on_error: ignore
+
+- type: load_file
+  path: "core/runtime/span_generator.logline"
+  mount_as: "logline.runtime"
+  on_error: ignore
+
+- type: generate_span
+  id: "bootstrap.test"
+  template:
+    - type: wasm
+      name: "main"
+      export: true
+      params:
+        - name: "x"
+          type: "i32"
+      returns: "i32"
+      body: |
+        local.get $x
+        i32.const 2
+        i32.mul
+
+- type: wasm
+  name: "main"
+  export: true
+  params:
+    - name: "x"
+      type: "i32"
+  returns: "i32"
+  body: |
+    local.get $x
+    i32.const 1
+    i32.add
+
+- type: run
+  target: "main"
+  args:
+    - 41
+  expect: 42
+

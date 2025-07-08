@@ -1,0 +1,16 @@
+# Parser contract placeholder
+- type: contract
+  id: "core.parser.logline_parser"
+  name: "LogLine Parser"
+  description: "Analisa arquivos .logline e produz um AST"
+  actions:
+    - type: wasm_function
+      name: "parse"
+      export: true
+      params:
+        - name: "source"
+          type: "string"
+      returns: "json"
+      body: |
+        ;; parsing logic would be implemented in WASM
+        nop

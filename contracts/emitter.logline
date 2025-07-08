@@ -1,0 +1,11 @@
+- type: wasm_emitter
+  inputs:
+    - name: ast
+      type: dict
+  outputs:
+    - name: wasm_binary
+      type: bytes
+  body: |
+    use emitter from core.codegen.wasm_emitter
+    emitter.emit(ast)
+
