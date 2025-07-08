@@ -184,6 +184,7 @@ This implementation is intentionally small. More advanced engines could include:
 Additional documentation can be found in the `docs/` directory:
 * [`docs/GRAMMAR_FULL.md`](docs/GRAMMAR_FULL.md) – the complete language grammar.
 * [`docs/MOTOR_PIPELINE.md`](docs/MOTOR_PIPELINE.md) – how the core contracts compose the engine purely with `.logline` files.
+* [`docs/TEXT_ENGINE_OVERVIEW.md`](docs/TEXT_ENGINE_OVERVIEW.md) – running the text engine with only contracts.
 * [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) – alternative engine concepts.
 * [`docs/ENGINE_OPTIONS.md`](docs/ENGINE_OPTIONS.md) and [`docs/OTHER_MOTORS.md`](docs/OTHER_MOTORS.md) – further runtime ideas.
 * [`docs/ALT_ARCHITECTURES.md`](docs/ALT_ARCHITECTURES.md) – additional kernel designs.
