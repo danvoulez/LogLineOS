@@ -1,0 +1,82 @@
+# 🌍 contracts/core/meta_contract_factory.logline
+# Este contrato interativo gera outros contratos LogLine.
+
+- type: contract
+  id: "core.factory.create_new_contract"
+  name: "F\u00e1brica de Contratos LogLine"
+  description: "Wizard para criar contratos .logline"
+  state:
+    new_contract:
+      id: null
+      name: null
+      description: null
+      params: []
+      actions: []
+      returns: null
+      tests: []
+  workflow:
+    - step: "ask_id"
+      prompt: "Qual o ID \u00fanico para este novo contrato?"
+      action: { type: "syscall.input", output: "response.id" }
+      on_response: { type: "update_state", target: "new_contract.id", value: "{{ response.id }}" }
+      next: "ask_name"
+    - step: "ask_name"
+      prompt: "Qual o nome leg\u00edvel para este contrato?"
+      action: { type: "syscall.input", output: "response.name" }
+      on_response: { type: "update_state", target: "new_contract.name", value: "{{ response.name }}" }
+      next: "ask_description"
+    - step: "ask_description"
+      prompt: "Descreva o prop\u00f3sito deste contrato em uma frase."
+      action: { type: "syscall.input", output: "response.description" }
+      on_response: { type: "update_state", target: "new_contract.description", value: "{{ response.description }}" }
+      next: "ask_actions"
+    - step: "ask_actions"
+      prompt: "Defina uma a\u00e7\u00e3o para este contrato."
+      action: { type: "syscall.input", output: "response.action.type" }
+      on_response: { type: "list_append", target: "new_contract.actions", value: { type: "{{ response.action.type }}" } }
+      next: "ask_more_actions"
+    - step: "ask_more_actions"
+      prompt: "Adicionar outra a\u00e7\u00e3o? (sim/n\u00e3o)"
+      action: { type: "syscall.input.choice", options: ["sim", "n\u00e3o"], output: "response.choice" }
+      on_response:
+        - type: "conditional"
+          if: "{{ response.choice == 'sim' }}"
+          then: { next: "ask_actions" }
+        - type: "conditional"
+          if: "{{ response.choice == 'n\u00e3o' }}"
+          then: { next: "generate_file" }
+    - step: "generate_file"
+      prompt: "Gerando arquivo..."
+      action:
+        - type: execute_contract
+          id: "core.factory.render_logline_from_state"
+          input: { state: "{{ self.state.new_contract }}" }
+          output: "generated_code"
+        - type: syscall.file_write
+          params:
+            - "contracts/generated/{{ self.state.new_contract.id }}.logline"
+            - "{{ generated_code }}"
+          output: "file_path"
+      next: "final_message"
+    - step: "final_message"
+      prompt: "Contrato gerado em: {{ file_path }}"
+      action: { type: "syscall.exit" }
+
+- type: contract
+  id: "core.factory.render_logline_from_state"
+  input: { name: "state", type: "json" }
+  output: { name: "code", type: "string" }
+  actions:
+    - type: template_render
+      template: |
+        - type: contract
+          id: "{{ state.id }}"
+          name: "{{ state.name }}"
+          description: "{{ state.description }}"
+          actions:
+          {{#each state.actions}}
+            - type: {{ this.type }}
+          {{/each}}
+      input: "{{ input.state }}"
+      output: "rendered_text"
+  returns: "{{ rendered_text }}"

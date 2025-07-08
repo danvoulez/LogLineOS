@@ -1,0 +1,17 @@
+- type: syscall_definition
+  id: "syscall.timeline.fork_and_simulate"
+  name: "Simulacao de Timeline em Memoria"
+  description: >
+    Cria um fork volatil da timeline atual, executa uma sequencia de contratos
+    contra esse fork e retorna o estado final e o log de spans sem alterar a timeline principal.
+  params:
+    - name: simulation_contracts
+      type: list[contract]
+    - name: context_snapshot
+      type: json
+  output:
+    - name: final_state
+      type: json
+    - name: simulation_spans
+      type: jsonl
+  on_error: "SIMULATION_FAILED"

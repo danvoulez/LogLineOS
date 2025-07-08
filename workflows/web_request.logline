@@ -1,0 +1,2 @@
+- type: text
+  content: "Meu IP é {{http.get(\"https://ifconfig.me/ip\")}}"

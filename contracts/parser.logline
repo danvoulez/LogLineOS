@@ -1,0 +1,9 @@
+{
+  "type": "wasm",
+  "name": "logline_parser",
+  "source": "./logline_parser.wasm",
+  "export": "parse",
+  "input": "config: test_mode",
+  "output": "parsed_ast"
+}
+

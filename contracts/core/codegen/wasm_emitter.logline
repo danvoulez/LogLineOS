@@ -1,0 +1,16 @@
+# WASM emitter contract placeholder
+- type: contract
+  id: "core.codegen.wasm_emitter"
+  name: "WASM Emitter"
+  description: "Converte spans em módulo WebAssembly"
+  actions:
+    - type: wasm_function
+      name: "emit"
+      export: true
+      params:
+        - name: "spans"
+          type: "json"
+      returns: "bytes"
+      body: |
+        ;; emission logic would be implemented in WASM
+        nop

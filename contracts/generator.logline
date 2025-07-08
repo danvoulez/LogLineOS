@@ -1,0 +1,14 @@
+- type: function
+  name: generate_spans
+  inputs:
+    - name: intent
+      type: string
+  outputs:
+    - name: span_json
+      type: string
+  body: |
+    if intent == "button":
+      return '{"type": "button", "label": "Clique aqui", "action": "{{ acao() }}"}'
+    else:
+      return '{"type": "noop"}'
+

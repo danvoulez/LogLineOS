@@ -1,0 +1,35 @@
+- type: contract
+  id: "services.animus.optimizer_agent"
+  name: "Agente Otimizador Animus"
+  description: "Analisa contratos e propoe melhorias automaticamente."
+  trigger: { type: "schedule", cron: "0 1 * * *", priority: "LOW" }
+  actions:
+    - type: query_timeline
+      query: "GET contract WHERE last_optimized_at < NOW() - 30d LIMIT 1"
+      output: "target_contract"
+    - type: execute_contract
+      id: "drivers.llm.invoke_with_validation"
+      input:
+        prompt: >
+          Analise este contrato LogLine: {{ target_contract.source }}.
+          Proponha uma versao otimizada mantendo a funcionalidade.
+        output_schema: "{{ logline_contract_schema }}"
+      output: "optimized_version"
+      on_failure: "LOG_AND_CONTINUE('LLM_OPTIMIZATION_FAILED')"
+    - type: execute_contract
+      id: "syscall.timeline.fork_and_simulate"
+      input:
+        simulation_contracts:
+          - { contract_id: "{{ target_contract.id }}", input: "{{ benchmark_data }}" }
+          - { contract_id: "temp.optimized", source: "{{ optimized_version }}", input: "{{ benchmark_data }}" }
+        context_snapshot: "{{ historical_context_data }}"
+      output: "benchmark_result"
+    - type: conditional
+      if: "{{ benchmark_result.optimized_is_superior == true }}"
+      then:
+        - type: execute_contract
+          id: "governance.create_pull_request"
+          input:
+            title: "Otimizacao automatica para {{ target_contract.id }}"
+            description: "Gerada pelo Animus."
+            diff: "{{ DIFF(target_contract.source, optimized_version) }}"

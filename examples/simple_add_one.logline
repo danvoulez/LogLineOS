@@ -1,0 +1,11 @@
+- type: wasm_function
+  name: "main"
+  export: true
+  params:
+    - name: "x"
+      type: "i32"
+  returns: "i32"
+  body: |
+    local.get $x
+    i32.const 1
+    i32.add
