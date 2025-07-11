@@ -23,3 +23,10 @@ clean:
 	rm -rf build
 
 .PHONY: build run clean check-tools
+
+
+# Start the official visual runtime
+ui-demo:
+	cd ui_runtime && ./start_demo.sh
+
+.PHONY: ui-demo

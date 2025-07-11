@@ -23,3 +23,10 @@ You can run it with:
 ```bash
 make run workflow=examples/example.logline
 ```
+The `ui_runtime/` directory contains a standalone browser runtime for visual contracts. You can try it with:
+
+```bash
+cd ui_runtime && ./start_demo.sh
+```
+
+Then open `http://localhost:8000/index.html?file=../examples/ui_runtime_demo.logline` to render the example `examples/ui_runtime_demo.logline`.

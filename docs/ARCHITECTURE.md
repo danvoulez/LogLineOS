@@ -16,6 +16,7 @@ While the current prototype is written in Go, other architectures could improve 
    - Allows running the same engine in browsers and servers.
 
 Each approach has trade-offs in complexity and performance. See the main code for the reference Go implementation.
+The repository also ships with `ui_runtime/`, a minimal browser engine to render LogLine contracts.
 
 
 ## Further Ideas
