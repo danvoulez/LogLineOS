@@ -1,0 +1,4 @@
+- type: enforce_acl
+  ip: "{{request.ip}}"
+  route: "{{request.path}}"
+  policies: "../api_keys/tenants.json"

@@ -105,6 +105,7 @@ Composto por:
 ---
 ## 🧠 UI Runtime
 
+
 O diretório `ui_runtime/` é o motor visual oficial do LogLineOS. Ele executa e renderiza contratos `.logline` diretamente no navegador de forma canônica.
 
 Para testar:
@@ -133,6 +134,31 @@ Depois de iniciar, teste com:
 
 ```bash
 curl -H "Authorization: Bearer abc123" http://localhost:8080/voulezvous/ping_app
+
+O diretório `ui_runtime/` é o motor visual oficial do LogLineOS. Ele executa e renderiza contratos `.logline` diretamente no navegador de forma canônica.
+
+Para testar:
+
+```bash
+cd ui_runtime && ./start_demo.sh
+```
+
+Edite os contratos visuais e recarregue a página para vê-los através do `runtime.mjs`. Este runtime será utilizado por aplicações do ecossistema, como `minicontratos/` e `voulezvous.tv`.
+
+## 🕒 Timeline
+
+O diretório `timeline/` guarda a linha do tempo factual do sistema. Cada instância registra spans em arquivos `.jsonl` e pode sincronizar com PostgreSQL, mas seu uso é opcional e modular. Ele pode ser removido ou movido para outro repositório sem afetar o restante do LogLineOS.
+
+
+## 🌐 Gateway
+
+O diretório `gateway/` é a porta de entrada universal para todos os apps. Ele roteia por tenant e app, valida chaves e registra spans de rede.
+
+Para iniciar:
+
+```bash
+./gateway/launch_gateway.sh
+
 ```
 ## 📬 Contato
 

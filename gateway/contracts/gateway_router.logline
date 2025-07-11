@@ -1,0 +1,8 @@
+- type: call
+  contract: check_api_key.logline
+- type: call
+  contract: enforce_policy.logline
+- type: call
+  contract: dispatch_to_app.logline
+- type: call
+  contract: log_network_span.logline

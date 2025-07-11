@@ -21,6 +21,7 @@ The `timeline/` module records spans in `.jsonl` files and can optionally sync t
 The `gateway/` directory handles universal routing, API key checks, heartbeat spans and automatic fallback.
 
 
+
 ## Further Ideas
 
 - **JIT-compiled Engine** – translate LogLine to an intermediate representation executed by a small virtual machine. Hot paths could be JIT compiled for speed similar to LuaJIT.

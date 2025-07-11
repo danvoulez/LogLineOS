@@ -3,7 +3,9 @@
 PromptPad is the conceptual front-end for interacting with LogLine workflows. It unifies command execution, log viewing, and AI assistance in a single interface.
 
 This interface is powered by the `ui_runtime/` engine, which renders `.logline` contracts directly in the browser.
+
 The `gateway/` module provides a universal entry point for all tenants.
+
 
 **Key concepts**
 

@@ -1,0 +1,2 @@
+- type: call_script
+  script: "../watchdog/monitor.sh"
