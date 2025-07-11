@@ -1,0 +1,11 @@
+- type: respond_json
+  body:
+    status: fallback
+    reason: "{{reason}}"
+    timestamp: "{{timestamp}}"
+- type: append_jsonl
+  file: "../timeline/requests.jsonl"
+  span:
+    type: fallback
+    reason: "{{reason}}"
+    timestamp: "{{timestamp}}"

@@ -1,0 +1,11 @@
+{
+  "tenants": {
+    "voulezvous": {
+      "apps": {
+        "minicontratos": {
+          "api_keys": ["abc123", "def456"]
+        }
+      }
+    }
+  }
+}

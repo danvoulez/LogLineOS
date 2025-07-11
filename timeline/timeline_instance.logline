@@ -1,0 +1,12 @@
+id: timeline:primary
+type: contract
+who: system:kernel
+did: register_timeline_instance
+payload:
+  description: Linha do tempo padrão do sistema institucional
+  tenant_id: loglinefoundation
+  storage_mode: jsonl+postgres_fallback
+  max_file_size_mb: 100
+  flush_policy: on_interval
+  location: ./data/spans/
+  backup_policy: hourly
