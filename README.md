@@ -103,6 +103,21 @@ Composto por:
 - 0 dependências externas
 
 ---
+## 🧠 UI Runtime
+
+O diretório `ui_runtime/` é o motor visual oficial do LogLineOS. Ele executa e renderiza contratos `.logline` diretamente no navegador de forma canônica.
+
+Para testar:
+
+```bash
+cd ui_runtime && ./start_demo.sh
+```
+
+Edite os contratos visuais e recarregue a página para vê-los através do `runtime.mjs`. Este runtime será utilizado por aplicações do ecossistema, como `minicontratos/` e `voulezvous.tv`.
+
+## 🕒 Timeline
+
+O diretório `timeline/` guarda a linha do tempo factual do sistema. Cada instância registra spans em arquivos `.jsonl` e pode sincronizar com PostgreSQL, mas seu uso é opcional e modular. Ele pode ser removido ou movido para outro repositório sem afetar o restante do LogLineOS.
 
 ## 📬 Contato
 
@@ -199,3 +214,4 @@ Try the `kernelization_test.logline` contract to compile and run a WASM module:
 go build
 ./motorcodex examples/kernelization_test.logline
 ```
+

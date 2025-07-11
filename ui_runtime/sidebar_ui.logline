@@ -1,0 +1,174 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "style": {
+      "padding": "16px 0",
+      "borderBottom": "1px solid rgba(255,255,255,0.1)"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "LogLine OS",
+        "style": {
+          "fontSize": "24px",
+          "fontWeight": "bold",
+          "color": "white",
+          "marginBottom": "8px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "UI Runtime Demo",
+        "style": {
+          "fontSize": "14px",
+          "color": "rgba(255,255,255,0.7)"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "style": {
+      "marginTop": "24px"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Navegação",
+        "style": {
+          "fontSize": "16px",
+          "fontWeight": "bold",
+          "color": "rgba(255,255,255,0.9)",
+          "marginBottom": "12px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "button",
+        "label": "Dashboard",
+        "style": {
+          "display": "block",
+          "width": "100%",
+          "textAlign": "left",
+          "padding": "10px 16px",
+          "backgroundColor": "transparent",
+          "color": "white",
+          "marginBottom": "8px",
+          "borderRadius": "4px",
+          "border": "none"
+        },
+        "action": {
+          "type": "navigate",
+          "to": "dashboard.logline"
+        }
+      },
+      {
+        "type": "span",
+        "component": "button",
+        "label": "Formulário",
+        "style": {
+          "display": "block",
+          "width": "100%",
+          "textAlign": "left",
+          "padding": "10px 16px",
+          "backgroundColor": "transparent",
+          "color": "white",
+          "marginBottom": "8px",
+          "borderRadius": "4px",
+          "border": "none"
+        },
+        "action": {
+          "type": "navigate",
+          "to": "form.logline"
+        }
+      },
+      {
+        "type": "span",
+        "component": "button",
+        "label": "Galeria",
+        "style": {
+          "display": "block",
+          "width": "100%",
+          "textAlign": "left",
+          "padding": "10px 16px",
+          "backgroundColor": "transparent",
+          "color": "white",
+          "marginBottom": "8px",
+          "borderRadius": "4px",
+          "border": "none"
+        },
+        "action": {
+          "type": "navigate",
+          "to": "gallery.logline"
+        }
+      },
+      {
+        "type": "span",
+        "component": "button",
+        "label": "Configurações Env",
+        "style": {
+          "display": "block",
+          "width": "100%",
+          "textAlign": "left",
+          "padding": "10px 16px",
+          "backgroundColor": "transparent",
+          "color": "white",
+          "marginBottom": "8px",
+          "borderRadius": "4px",
+          "border": "none"
+        },
+        "action": {
+          "type": "navigate",
+          "to": "env_config.logline"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "style": {
+      "marginTop": "32px",
+      "padding": "16px",
+      "backgroundColor": "rgba(0,0,0,0.2)",
+      "borderRadius": "4px"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "LogLine UI Runtime",
+        "style": {
+          "fontSize": "14px",
+          "fontWeight": "bold",
+          "color": "rgba(255,255,255,0.9)",
+          "marginBottom": "8px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Versão 1.0.0",
+        "style": {
+          "fontSize": "12px",
+          "color": "rgba(255,255,255,0.7)",
+          "marginBottom": "8px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "© 2025 LogLine OS",
+        "style": {
+          "fontSize": "12px",
+          "color": "rgba(255,255,255,0.5)"
+        }
+      }
+    ]
+  }
+]

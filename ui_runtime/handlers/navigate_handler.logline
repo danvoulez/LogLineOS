@@ -1,0 +1,61 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "if": "{{action.showLoading}}",
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Carregando conteúdo...",
+        "style": {
+          "padding": "20px",
+          "textAlign": "center",
+          "color": "#3498db",
+          "fontWeight": "bold"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "load_file",
+    "file": "{{action.to}}",
+    "target": "{{action.target || 'main-content'}}",
+    "fallback": "{{action.fallback}}",
+    "onError": [
+      {
+        "type": "span",
+        "operation": "log",
+        "level": "error",
+        "message": "Falha ao navegar para {{action.to}}"
+      },
+      {
+        "type": "span",
+        "component": "alert",
+        "alertType": "error",
+        "message": "Não foi possível carregar o conteúdo solicitado",
+        "autoHide": 5000
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "if": "{{action.onError}}",
+        "children": "{{action.onError}}"
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "operation": "set_state",
+    "key": "app.currentPage",
+    "value": "{{action.to}}"
+  },
+  {
+    "type": "span",
+    "operation": "log",
+    "level": "info",
+    "message": "Navegação concluída para {{action.to}}"
+  }
+]

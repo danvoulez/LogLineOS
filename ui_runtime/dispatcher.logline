@@ -1,0 +1,98 @@
+[
+  {
+    "operation": "navigate",
+    "handler": "handlers/navigate_handler.logline"
+  },
+  {
+    "operation": "set_state",
+    "handler": "handlers/set_state_handler.logline"
+  },
+  {
+    "operation": "get_state",
+    "handler": "handlers/get_state_handler.logline"
+  },
+  {
+    "operation": "persist_state",
+    "handler": "handlers/persist_state_handler.logline"
+  },
+  {
+    "operation": "load_state",
+    "handler": "handlers/load_state_handler.logline"
+  },
+  {
+    "operation": "set_theme",
+    "handler": "handlers/set_theme_handler.logline"
+  },
+  {
+    "operation": "assert_exists",
+    "handler": "handlers/assert_exists_handler.logline"
+  },
+  {
+    "operation": "assert_visible",
+    "handler": "handlers/assert_visible_handler.logline"
+  },
+  {
+    "operation": "assert_text",
+    "handler": "handlers/assert_text_handler.logline"
+  },
+  {
+    "operation": "assert_state",
+    "handler": "handlers/assert_state_handler.logline"
+  },
+  {
+    "operation": "run_tests",
+    "handler": "handlers/run_tests_handler.logline"
+  },
+  {
+    "operation": "fetch_data",
+    "handler": "handlers/fetch_data_handler.logline"
+  },
+  {
+    "operation": "format_data",
+    "handler": "handlers/format_data_handler.logline"
+  },
+  {
+    "operation": "log",
+    "handler": "handlers/log_handler.logline"
+  },
+  {
+    "operation": "validate_form",
+    "handler": "handlers/validate_form_handler.logline"
+  },
+  {
+    "operation": "update_ui_element",
+    "handler": "handlers/update_ui_element_handler.logline"
+  },
+  {
+    "operation": "alert",
+    "handler": "handlers/alert_handler.logline"
+  },
+  {
+    "operation": "debug_panel",
+    "handler": "handlers/debug_panel_handler.logline"
+  },
+  {
+    "operation": "media",
+    "handler": "handlers/media_handler.logline"
+  },
+  {
+    "operation": "image",
+    "handler": "handlers/image_handler.logline"
+  },
+  {
+    "operation": "data_table",
+    "handler": "handlers/data_table_handler.logline"
+  },
+  {
+    "operation": "file_upload",
+    "handler": "handlers/file_upload_handler.logline"
+  },
+  {
+    "operation": "trigger_file_input",
+    "handler": "handlers/trigger_file_input_handler.logline"
+  },
+  {
+    "operation": "remove_file",
+    "handler": "handlers/remove_file_handler.logline"
+  }
+]

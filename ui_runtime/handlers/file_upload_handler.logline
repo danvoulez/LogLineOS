@@ -1,0 +1,203 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "tokens": {
+      "display": "flex",
+      "flex_direction": "column",
+      "width": "100%",
+      "margin": "16px 0"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "label",
+        "content": "{{action.label}}",
+        "tokens": {
+          "margin_bottom": "8px",
+          "font_size": "14px",
+          "font_weight": "bold"
+        },
+        "if": "{{action.label}}"
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "2px dashed var(--border)",
+          "border_radius": "4px",
+          "padding": "20px",
+          "text_align": "center",
+          "background_color": "var(--background-alt)",
+          "transition": "all 0.3s"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "input_box",
+            "inputType": "file",
+            "name": "{{action.name}}",
+            "multiple": "{{action.multiple}}",
+            "accept": "{{action.accept}}",
+            "tokens": {
+              "display": "none"
+            },
+            "statePath": "{{action.statePath || ('form.' + action.name)}}"
+          },
+          {
+            "type": "span",
+            "component": "icon",
+            "name": "upload",
+            "tokens": {
+              "font_size": "32px",
+              "color": "var(--color-primary)",
+              "margin_bottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "{{action.prompt || 'Arraste e solte arquivos aqui ou clique para selecionar'}}",
+            "tokens": {
+              "margin_bottom": "8px",
+              "font_size": "16px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "{{action.description}}",
+            "tokens": {
+              "font_size": "14px",
+              "color": "var(--text-secondary)"
+            },
+            "if": "{{action.description}}"
+          },
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Selecionar arquivo{{action.multiple ? 's' : ''}}",
+            "tokens": {
+              "margin_top": "12px",
+              "padding": "8px 16px",
+              "background_color": "var(--color-primary)",
+              "color": "white",
+              "border": "none",
+              "border_radius": "4px",
+              "cursor": "pointer"
+            },
+            "action": {
+              "type": "span",
+              "operation": "trigger_file_input",
+              "name": "{{action.name}}"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "margin_top": "12px",
+          "display": "flex",
+          "flex_wrap": "wrap",
+          "gap": "8px"
+        },
+        "if": "{{action.showFileList !== false && form[action.name] && form[action.name].length > 0}}",
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Arquivos selecionados:",
+            "tokens": {
+              "width": "100%",
+              "margin_bottom": "8px",
+              "font_weight": "bold"
+            }
+          },
+          {
+            "type": "span",
+            "component": "list",
+            "items": "{{form[action.name]}}",
+            "item_template": {
+              "type": "span",
+              "component": "container",
+              "tokens": {
+                "display": "flex",
+                "align_items": "center",
+                "background_color": "var(--background)",
+                "border": "1px solid var(--border)",
+                "border_radius": "4px",
+                "padding": "6px 12px",
+                "margin": "2px"
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "component": "icon",
+                  "name": "{{item.type.startsWith('image') ? 'image' : 'document'}}",
+                  "tokens": {
+                    "margin_right": "8px",
+                    "color": "var(--color-primary)"
+                  }
+                },
+                {
+                  "type": "span",
+                  "component": "text_block",
+                  "content": "{{item.name}}",
+                  "tokens": {
+                    "max_width": "200px",
+                    "white_space": "nowrap",
+                    "overflow": "hidden",
+                    "text_overflow": "ellipsis"
+                  }
+                },
+                {
+                  "type": "span",
+                  "component": "text_block",
+                  "content": "({{formatFileSize(item.size)}})",
+                  "tokens": {
+                    "font_size": "12px",
+                    "color": "var(--text-secondary)",
+                    "margin_left": "8px",
+                    "margin_right": "8px"
+                  }
+                },
+                {
+                  "type": "span",
+                  "component": "button",
+                  "content": "×",
+                  "tokens": {
+                    "background": "none",
+                    "border": "none",
+                    "color": "var(--text-secondary)",
+                    "font_size": "18px",
+                    "cursor": "pointer",
+                    "padding": "0 4px"
+                  },
+                  "action": {
+                    "type": "span",
+                    "operation": "remove_file",
+                    "name": "{{action.name}}",
+                    "index": "{{$index}}"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "{{form.errors[action.name]}}",
+        "tokens": {
+          "color": "var(--color-danger)",
+          "font_size": "14px",
+          "margin_top": "8px"
+        },
+        "if": "{{form.errors && form.errors[action.name]}}"
+      }
+    ]
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "tokens": {
+      "display": "flex",
+      "flex_direction": "column",
+      "align_items": "center",
+      "justify_content": "center",
+      "width": "100%",
+      "overflow": "hidden"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "image",
+        "src": "{{action.src}}",
+        "alt": "{{action.alt || 'Media content'}}",
+        "tokens": "{{action.tokens}}",
+        "onClick": "{{action.onClick}}",
+        "loading": "{{action.loading || 'lazy'}}",
+        "if": "{{!action.isVideo}}"
+      },
+      {
+        "type": "span",
+        "component": "video",
+        "src": "{{action.src}}",
+        "controls": "{{action.controls !== false}}",
+        "autoplay": "{{action.autoplay}}",
+        "loop": "{{action.loop}}",
+        "muted": "{{action.muted}}",
+        "tokens": "{{action.tokens}}",
+        "if": "{{action.isVideo}}"
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "{{action.caption}}",
+        "tokens": {
+          "text_align": "center",
+          "font_size": "14px",
+          "color": "var(--text-secondary)",
+          "margin_top": "8px",
+          "font_style": "italic"
+        },
+        "if": "{{action.caption}}"
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "tokens": {
+      "display": "flex",
+      "align_items": "center",
+      "justify_content": "center",
+      "width": "100%",
+      "padding": "16px",
+      "background_color": "rgba(244, 67, 54, 0.1)",
+      "border": "1px solid rgba(244, 67, 54, 0.3)",
+      "border_radius": "4px",
+      "margin": "16px 0"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Erro ao carregar mídia: {{action.src}}",
+        "tokens": {
+          "color": "var(--color-danger)",
+          "font_size": "14px"
+        }
+      }
+    ],
+    "if": "{{action.onError}}"
+  }
+]

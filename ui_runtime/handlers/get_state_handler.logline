@@ -1,0 +1,10 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "get_state",
+    "key": "{{action.key}}",
+    "defaultValue": "{{action.defaultValue}}",
+    "target": "{{action.target}}"
+  }
+]

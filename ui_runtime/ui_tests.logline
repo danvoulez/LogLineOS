@@ -1,0 +1,38 @@
+{
+  "test_id": "ui-baseline-tests",
+  "description": "Testes de linha de base para a interface UI LogLine",
+  "spans": [
+    {
+      "type": "test",
+      "operation": "assert_exists",
+      "selector": "#app-container",
+      "test_id": "app-container-exists"
+    },
+    {
+      "type": "test",
+      "operation": "assert_exists",
+      "selector": ".sidebar",
+      "test_id": "sidebar-exists"
+    },
+    {
+      "type": "test",
+      "operation": "assert_text",
+      "selector": "h1.main-title",
+      "expected": "LogLineOS Dashboard",
+      "test_id": "main-title-check"
+    },
+    {
+      "type": "test",
+      "operation": "assert_state",
+      "path": "app.initialized",
+      "expected": true,
+      "test_id": "app-initialization-check"
+    },
+    {
+      "type": "test",
+      "operation": "assert_exists",
+      "selector": ".content-area",
+      "test_id": "content-area-exists"
+    }
+  ]
+}

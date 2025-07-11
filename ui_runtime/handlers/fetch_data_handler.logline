@@ -1,0 +1,12 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "fetch_data",
+    "url": "{{action.url}}",
+    "method": "{{action.method}}",
+    "headers": "{{action.headers}}",
+    "body": "{{action.body}}",
+    "target_state": "{{action.target_state}}"
+  }
+]

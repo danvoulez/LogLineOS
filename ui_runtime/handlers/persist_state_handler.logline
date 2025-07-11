@@ -1,0 +1,12 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "persist_state",
+    "keys": "{{action.keys}}",
+    "storage": "{{action.storage || 'localStorage'}}",
+    "prefix": "{{action.prefix || 'logline_state_'}}",
+    "encrypt": "{{action.encrypt}}",
+    "encryptionKey": "{{action.encryptionKey}}"
+  }
+]

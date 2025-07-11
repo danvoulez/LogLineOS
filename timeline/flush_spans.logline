@@ -1,0 +1,2 @@
+- type: flush_file
+  file: "{{timeline.location}}{{tenant_id}}_spans.jsonl"

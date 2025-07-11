@@ -1,0 +1,304 @@
+[
+  {
+    "type": "span",
+    "component": "meta_info",
+    "version": "1.0.0",
+    "timestamp": "2025-07-10T10:00:00Z",
+    "description": "Dashboard do LogLine UI Runtime"
+  },
+  {
+    "type": "span",
+    "component": "section",
+    "span_id": "dashboard_header",
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Dashboard",
+        "span_id": "dashboard_title",
+        "tokens": {
+          "font_size": "28px",
+          "font_weight": "bold",
+          "margin_bottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Visão geral do sistema LogLine UI Runtime",
+        "span_id": "dashboard_subtitle",
+        "tokens": {
+          "font_size": "16px",
+          "color": "#666",
+          "margin_bottom": "32px"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "row",
+    "span_id": "stats_row",
+    "tokens": {
+      "display": "flex",
+      "flex_wrap": "wrap",
+      "gap": "24px",
+      "margin_bottom": "32px"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "card",
+        "span_id": "spans_card",
+        "tokens": {
+          "flex": "1",
+          "min_width": "200px",
+          "background_color": "#3498db",
+          "border_radius": "8px",
+          "padding": "20px",
+          "color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Spans Renderizados",
+            "span_id": "spans_label",
+            "tokens": {
+              "font_size": "16px",
+              "margin_bottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "42",
+            "span_id": "spans_value",
+            "tokens": {
+              "font_size": "32px",
+              "font_weight": "bold"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "card",
+        "span_id": "files_card",
+        "tokens": {
+          "flex": "1",
+          "min_width": "200px",
+          "background_color": "#2ecc71",
+          "border_radius": "8px",
+          "padding": "20px",
+          "color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Arquivos .logline",
+            "span_id": "files_label",
+            "tokens": {
+              "font_size": "16px",
+              "margin_bottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "5",
+            "span_id": "files_value",
+            "tokens": {
+              "font_size": "32px",
+              "font_weight": "bold"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "card",
+        "span_id": "actions_card",
+        "tokens": {
+          "flex": "1",
+          "min_width": "200px",
+          "background_color": "#f39c12",
+          "border_radius": "8px",
+          "padding": "20px",
+          "color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Ações Executadas",
+            "span_id": "actions_label",
+            "tokens": {
+              "font_size": "16px",
+              "margin_bottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "12",
+            "span_id": "actions_value",
+            "tokens": {
+              "font_size": "32px",
+              "font_weight": "bold"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "section",
+    "span_id": "recent_activity_section",
+    "tokens": {
+      "margin_bottom": "32px"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Atividade Recente",
+        "span_id": "activity_title",
+        "tokens": {
+          "font_size": "20px",
+          "font_weight": "bold",
+          "margin_bottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "timeline",
+        "span_id": "activity_timeline",
+        "tokens": {
+          "background_color": "white",
+          "border": "1px solid #ddd",
+          "border_radius": "8px",
+          "padding": "0"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "timeline_item",
+            "span_id": "activity_item_1",
+            "timestamp": "2025-07-10T09:55:00Z",
+            "tokens": {
+              "padding": "12px 16px",
+              "border_bottom": "1px solid #eee"
+            },
+            "children": [
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Arquivo main_content.logline carregado",
+                "span_id": "activity_1_title",
+                "tokens": {
+                  "margin_bottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Há 5 minutos",
+                "span_id": "activity_1_time",
+                "tokens": {
+                  "font_size": "12px",
+                  "color": "#999"
+                }
+              }
+            ]
+          },
+          {
+            "type": "span",
+            "component": "timeline_item",
+            "span_id": "activity_item_2",
+            "timestamp": "2025-07-10T09:58:00Z",
+            "tokens": {
+              "padding": "12px 16px",
+              "border_bottom": "1px solid #eee"
+            },
+            "children": [
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Ação de navegação executada",
+                "span_id": "activity_2_title",
+                "tokens": {
+                  "margin_bottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Há 2 minutos",
+                "span_id": "activity_2_time",
+                "tokens": {
+                  "font_size": "12px",
+                  "color": "#999"
+                }
+              }
+            ]
+          },
+          {
+            "type": "span",
+            "component": "timeline_item",
+            "span_id": "activity_item_3",
+            "timestamp": "2025-07-10T10:00:00Z",
+            "tokens": {
+              "padding": "12px 16px"
+            },
+            "children": [
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Dashboard renderizado",
+                "span_id": "activity_3_title",
+                "tokens": {
+                  "margin_bottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Agora mesmo",
+                "span_id": "activity_3_time",
+                "tokens": {
+                  "font_size": "12px",
+                  "color": "#999"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "button",
+    "content": "Voltar para página inicial",
+    "span_id": "back_button",
+    "tokens": {
+      "margin_top": "16px"
+    },
+    "action": {
+      "type": "span",
+      "operation": "navigate",
+      "target": "main_content.logline"
+    }
+  },
+  {
+    "type": "span",
+    "component": "debug_panel",
+    "span_id": "dashboard_debug",
+    "title": "Estado do Dashboard",
+    "watch": "app",
+    "visible_if": "env.FEATURES.debugPanel === true"
+  }
+]

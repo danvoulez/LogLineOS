@@ -1,0 +1,9 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "assert_visible",
+    "selector": "{{action.selector}}",
+    "test_id": "{{action.test_id}}"
+  }
+]

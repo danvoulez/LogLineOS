@@ -1,0 +1,315 @@
+[
+  {
+    "type": "span",
+    "component": "meta_info",
+    "name": "LogLine PostgreSQL API",
+    "version": "1.0.0",
+    "description": "API de banco de dados PostgreSQL moderna inspirada no Supabase para LogLine OS",
+    "author": "LogLine Team"
+  },
+  {
+    "type": "span",
+    "component": "db_definition",
+    "provider": "postgres",
+    "connection": {
+      "host": "{{env.POSTGRES.HOST}}",
+      "port": "{{env.POSTGRES.PORT}}",
+      "database": "{{env.POSTGRES.DATABASE}}",
+      "user": "{{env.POSTGRES.USER}}",
+      "password": "{{env.POSTGRES.PASSWORD}}",
+      "ssl": "{{env.POSTGRES.SSL_MODE}}"
+    },
+    "tables": [
+      {
+        "name": "users",
+        "schema": "public",
+        "columns": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "primaryKey": true,
+            "defaultValue": "gen_random_uuid()"
+          },
+          {
+            "name": "email",
+            "type": "text",
+            "unique": true,
+            "notNull": true
+          },
+          {
+            "name": "password",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "full_name",
+            "type": "text"
+          },
+          {
+            "name": "avatar_url",
+            "type": "text"
+          },
+          {
+            "name": "role",
+            "type": "text",
+            "defaultValue": "'user'"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamp with time zone",
+            "defaultValue": "now()",
+            "notNull": true
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamp with time zone",
+            "defaultValue": "now()",
+            "notNull": true
+          }
+        ],
+        "indexes": [
+          {
+            "columns": ["email"],
+            "unique": true
+          }
+        ],
+        "policies": [
+          {
+            "name": "users_read_own",
+            "operation": "SELECT",
+            "expression": "auth.uid() = id"
+          },
+          {
+            "name": "users_update_own",
+            "operation": "UPDATE",
+            "expression": "auth.uid() = id"
+          }
+        ]
+      },
+      {
+        "name": "projects",
+        "schema": "public",
+        "columns": [
+          {
+            "name": "id",
+            "type": "uuid",
+            "primaryKey": true,
+            "defaultValue": "gen_random_uuid()"
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "description",
+            "type": "text"
+          },
+          {
+            "name": "owner_id",
+            "type": "uuid",
+            "notNull": true,
+            "references": {
+              "table": "users",
+              "column": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "name": "is_public",
+            "type": "boolean",
+            "defaultValue": "false",
+            "notNull": true
+          },
+          {
+            "name": "created_at",
+            "type": "timestamp with time zone",
+            "defaultValue": "now()",
+            "notNull": true
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamp with time zone",
+            "defaultValue": "now()",
+            "notNull": true
+          }
+        ],
+        "indexes": [
+          {
+            "columns": ["owner_id", "name"],
+            "unique": true
+          }
+        ],
+        "policies": [
+          {
+            "name": "projects_select_own_or_public",
+            "operation": "SELECT",
+            "expression": "auth.uid() = owner_id OR is_public = true"
+          },
+          {
+            "name": "projects_insert_own",
+            "operation": "INSERT",
+            "expression": "auth.uid() = owner_id"
+          },
+          {
+            "name": "projects_update_own",
+            "operation": "UPDATE",
+            "expression": "auth.uid() = owner_id"
+          },
+          {
+            "name": "projects_delete_own",
+            "operation": "DELETE",
+            "expression": "auth.uid() = owner_id"
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "handle_updated_at",
+        "returns": "trigger",
+        "language": "plpgsql",
+        "body": "BEGIN NEW.updated_at = now(); RETURN NEW; END;",
+        "triggers": [
+          {
+            "table": "users",
+            "when": "BEFORE UPDATE",
+            "level": "ROW",
+            "for_each": "ROW"
+          },
+          {
+            "table": "projects",
+            "when": "BEFORE UPDATE",
+            "level": "ROW",
+            "for_each": "ROW"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "api_definition",
+    "baseUrl": "{{env.POSTGRES.API_URL}}",
+    "auth": {
+      "type": "jwt",
+      "headerName": "Authorization",
+      "headerFormat": "Bearer {{token}}",
+      "tokenSecret": "{{env.POSTGRES.JWT_SECRET}}",
+      "tokenExpiry": "{{env.POSTGRES.JWT_EXPIRY}}"
+    },
+    "endpoints": [
+      {
+        "path": "/auth/signup",
+        "method": "POST",
+        "description": "Registrar novo usuário",
+        "handler": {
+          "type": "sql",
+          "operation": "INSERT INTO users(email, password, full_name) VALUES(:email, crypt(:password, gen_salt('bf')), :full_name) RETURNING id, email, full_name, created_at",
+          "response": {
+            "success": {
+              "status": 201,
+              "generateAuthToken": true
+            },
+            "error": {
+              "status": 400,
+              "message": "Erro ao criar usuário"
+            }
+          }
+        }
+      },
+      {
+        "path": "/auth/login",
+        "method": "POST",
+        "description": "Autenticar usuário",
+        "handler": {
+          "type": "sql",
+          "operation": "SELECT id, email, full_name, avatar_url, role FROM users WHERE email = :email AND password = crypt(:password, password)",
+          "response": {
+            "success": {
+              "status": 200,
+              "generateAuthToken": true
+            },
+            "error": {
+              "status": 401,
+              "message": "Email ou senha inválidos"
+            }
+          }
+        }
+      },
+      {
+        "path": "/projects",
+        "method": "GET",
+        "description": "Listar projetos",
+        "requireAuth": true,
+        "handler": {
+          "type": "sql",
+          "operation": "SELECT * FROM projects WHERE owner_id = auth.uid() OR is_public = true ORDER BY created_at DESC",
+          "response": {
+            "success": {
+              "status": 200
+            }
+          }
+        }
+      },
+      {
+        "path": "/projects",
+        "method": "POST",
+        "description": "Criar projeto",
+        "requireAuth": true,
+        "handler": {
+          "type": "sql",
+          "operation": "INSERT INTO projects(name, description, owner_id, is_public) VALUES(:name, :description, auth.uid(), :is_public) RETURNING *",
+          "response": {
+            "success": {
+              "status": 201
+            }
+          }
+        }
+      },
+      {
+        "path": "/projects/:id",
+        "method": "GET",
+        "description": "Buscar projeto por ID",
+        "requireAuth": true,
+        "handler": {
+          "type": "sql",
+          "operation": "SELECT * FROM projects WHERE id = :id AND (owner_id = auth.uid() OR is_public = true)",
+          "response": {
+            "success": {
+              "status": 200
+            },
+            "error": {
+              "status": 404,
+              "message": "Projeto não encontrado"
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "migration_script",
+    "description": "Script para criação inicial do banco de dados",
+    "script": [
+      "CREATE EXTENSION IF NOT EXISTS \"pgcrypto\";",
+      "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";",
+      
+      "-- Criação das tabelas",
+      "CREATE TABLE IF NOT EXISTS public.users (...);",
+      "CREATE TABLE IF NOT EXISTS public.projects (...);",
+      
+      "-- Criação das funções",
+      "CREATE OR REPLACE FUNCTION handle_updated_at() RETURNS trigger AS $$ BEGIN NEW.updated_at = now(); RETURN NEW; END; $$ LANGUAGE plpgsql;",
+      
+      "-- Criação dos triggers",
+      "CREATE TRIGGER users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION handle_updated_at();",
+      "CREATE TRIGGER projects_updated_at BEFORE UPDATE ON projects FOR EACH ROW EXECUTE FUNCTION handle_updated_at();",
+      
+      "-- Criação das RLS policies",
+      "ALTER TABLE users ENABLE ROW LEVEL SECURITY;",
+      "ALTER TABLE projects ENABLE ROW LEVEL SECURITY;"
+    ]
+  }
+]

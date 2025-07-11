@@ -1,0 +1,9 @@
+[
+  {
+    "type": "span",
+    "component": "alert",
+    "alertType": "{{action.type}}",
+    "message": "{{action.message}}",
+    "autoHide": "{{action.autoHide}}"
+  }
+]

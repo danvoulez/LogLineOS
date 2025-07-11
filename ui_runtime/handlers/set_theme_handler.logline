@@ -1,0 +1,37 @@
+[
+  {
+    "type": "span",
+    "operation": "load_file",
+    "to": "{{action.theme}}",
+    "target": "theme-container",
+    "onError": [
+      {
+        "type": "span",
+        "operation": "log",
+        "level": "error",
+        "message": "Falha ao carregar tema {{action.theme}}"
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "apply_theme",
+    "theme": "{{action.theme}}",
+    "transition": "{{action.transition || false}}",
+    "transitionDuration": "{{action.transitionDuration || '0.3s'}}"
+  },
+  {
+    "type": "span",
+    "operation": "set_state",
+    "key": "app.theme",
+    "value": "{{action.name || action.theme}}",
+    "if": "{{action.updateState !== false}}"
+  },
+  {
+    "type": "span",
+    "operation": "persist_state",
+    "keys": ["app.theme"],
+    "if": "{{action.persist === true}}"
+  }
+]

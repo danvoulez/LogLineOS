@@ -1,0 +1,10 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "format_data",
+    "data": "{{action.data}}",
+    "format": "{{action.format}}",
+    "target_state": "{{action.target_state}}"
+  }
+]

@@ -1,0 +1,502 @@
+[
+  {
+    "type": "span",
+    "component": "meta_info",
+    "version": "1.0.0",
+    "timestamp": "2025-08-20T10:00:00Z",
+    "description": "Demonstração completa de recursos do LogLineOS UI Runtime 4.0"
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "tokens": {
+      "padding": "20px",
+      "background_color": "var(--color_background)",
+      "border_radius": "var(--border_radius)",
+      "box_shadow": "var(--box_shadow)",
+      "max_width": "1200px",
+      "margin": "0 auto"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Demo Completo: LogLineOS UI Runtime 4.0",
+        "tokens": {
+          "font_size": "24px",
+          "font_weight": "bold",
+          "color": "var(--color_primary)",
+          "margin_bottom": "20px",
+          "text_align": "center"
+        }
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "1. Gerenciamento de Estado",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "operation": "set_state",
+            "key": "demo.counter",
+            "value": 0
+          },
+          
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Contador atual: {{demo.counter}}",
+            "tokens": {
+              "margin_bottom": "10px"
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Incrementar",
+            "tokens": {
+              "margin_right": "10px"
+            },
+            "action": {
+              "type": "local",
+              "handler": "updateState",
+              "data": {
+                "path": "demo.counter",
+                "value": "{{demo.counter + 1}}"
+              }
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Resetar",
+            "tokens": {
+              "background_color": "var(--color_warning)"
+            },
+            "action": {
+              "type": "local",
+              "handler": "updateState",
+              "data": {
+                "path": "demo.counter",
+                "value": 0
+              }
+            }
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "2. Temas Dinâmicos",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Tema Claro",
+            "tokens": {
+              "margin_right": "10px"
+            },
+            "visible_if": "app.currentTheme !== 'theme_default.logline'",
+            "action": {
+              "type": "sequence",
+              "actions": [
+                {
+                  "type": "local",
+                  "handler": "addAlert",
+                  "data": {
+                    "type": "info",
+                    "message": "Aplicando tema claro...",
+                    "autoHide": 2000
+                  }
+                },
+                {
+                  "operation": "set_theme",
+                  "theme": "theme_default.logline"
+                }
+              ]
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Tema Escuro",
+            "tokens": {
+              "background_color": "#555",
+              "margin_right": "10px"
+            },
+            "visible_if": "app.currentTheme !== 'theme_dark.logline'",
+            "action": {
+              "type": "sequence",
+              "actions": [
+                {
+                  "type": "local",
+                  "handler": "addAlert",
+                  "data": {
+                    "type": "info",
+                    "message": "Aplicando tema escuro...",
+                    "autoHide": 2000
+                  }
+                },
+                {
+                  "operation": "set_theme",
+                  "theme": "theme_dark.logline"
+                }
+              ]
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Tema atual: {{app.currentTheme}}",
+            "tokens": {
+              "margin_top": "10px",
+              "font_style": "italic"
+            }
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "3. Testes Declarativos",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "input_box",
+            "id": "test-input",
+            "name": "testValue",
+            "prompt": "Digite um valor para testar",
+            "tokens": {
+              "width": "300px",
+              "margin_bottom": "10px"
+            },
+            "action": {
+              "operation": "set_state",
+              "key": "demo.testValue",
+              "value": "{{$event.target.value}}"
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Executar testes",
+            "tokens": {
+              "background_color": "var(--color_secondary)"
+            },
+            "action": {
+              "operation": "run_tests",
+              "target": "ui_tests.logline"
+            }
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "4. Visualização de Dados com Data Table",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "operation": "set_state",
+            "key": "demo.table_data",
+            "value": [
+              {"id": 1, "name": "Ana Silva", "email": "ana.silva@example.com", "status": "Ativo"},
+              {"id": 2, "name": "Bruno Martins", "email": "bruno.m@example.com", "status": "Inativo"},
+              {"id": 3, "name": "Carla Oliveira", "email": "carla.o@example.com", "status": "Ativo"},
+              {"id": 4, "name": "Diego Santos", "email": "diego.santos@example.com", "status": "Pendente"},
+              {"id": 5, "name": "Eduarda Lima", "email": "eduarda.l@example.com", "status": "Ativo"}
+            ]
+          },
+          
+          {
+            "type": "span",
+            "operation": "data_table",
+            "title": "Lista de Usuários",
+            "columns": [
+              {"field": "id", "title": "ID", "align": "center"},
+              {"field": "name", "title": "Nome"},
+              {"field": "email", "title": "E-mail"},
+              {"field": "status", "title": "Status", "align": "center"}
+            ],
+            "data": "{{demo.table_data}}",
+            "pagination": {
+              "current_page": 1,
+              "page_size": 10,
+              "on_page_change": "change_page"
+            },
+            "total": 5
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "5. Suporte a Mídia",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "operation": "media",
+            "src": "https://placekitten.com/400/300",
+            "alt": "Exemplo de imagem de gato",
+            "caption": "Imagem de exemplo com suporte completo para legendas",
+            "tokens": {
+              "max_width": "400px",
+              "border_radius": "8px",
+              "box_shadow": "0 4px 8px rgba(0,0,0,0.1)"
+            }
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "6. Upload de Arquivos",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "operation": "file_upload",
+            "name": "profile_image",
+            "label": "Imagem de Perfil",
+            "description": "Arquivos JPG, PNG ou GIF (máx. 5MB)",
+            "accept": "image/*",
+            "multiple": false
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "7. Alertas e Notificações",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Mostrar Alerta de Sucesso",
+            "tokens": {
+              "margin_right": "10px",
+              "background_color": "var(--color-success)"
+            },
+            "action": {
+              "operation": "alert",
+              "type": "success",
+              "message": "Operação concluída com sucesso!",
+              "autoHide": 3000
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Mostrar Alerta de Erro",
+            "tokens": {
+              "margin_right": "10px",
+              "background_color": "var(--color-danger)"
+            },
+            "action": {
+              "operation": "alert",
+              "type": "error",
+              "message": "Ocorreu um erro na operação!",
+              "autoHide": 3000
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Mostrar Alerta de Aviso",
+            "tokens": {
+              "background_color": "var(--color-warning)"
+            },
+            "action": {
+              "operation": "alert",
+              "type": "warning",
+              "message": "Atenção! Esta ação não pode ser desfeita.",
+              "autoHide": 3000
+            }
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "border": "1px solid var(--color_border)",
+          "padding": "15px",
+          "margin_bottom": "20px",
+          "background_color": "white"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "8. Debug e Inspeção",
+            "tokens": {
+              "font_weight": "bold",
+              "margin_bottom": "10px",
+              "color": "var(--color_accent)"
+            }
+          },
+          
+          {
+            "type": "span",
+            "component": "button",
+            "content": "Mostrar/Ocultar Painel de Debug",
+            "tokens": {
+              "margin_right": "10px"
+            },
+            "action": {
+              "operation": "set_state",
+              "key": "app.debug",
+              "value": "{{!app.debug}}"
+            }
+          },
+          
+          {
+            "type": "span",
+            "operation": "debug_panel",
+            "title": "Estado da Aplicação",
+            "watch": "demo",
+            "visible_if": "app.debug === true"
+          }
+        ]
+      },
+      
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "LogLineOS UI Runtime 4.0 - 100% Declarativo",
+        "tokens": {
+          "margin_top": "30px",
+          "text_align": "center",
+          "font_size": "14px",
+          "color": "var(--text-secondary)"
+        }
+      }
+    ]
+  }
+]
