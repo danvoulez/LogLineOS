@@ -1,0 +1,4 @@
+- type: append_jsonl
+  file: "{{timeline.location}}{{tenant_id}}_spans.jsonl"
+  span: "{{input_span}}"
+  flush: false

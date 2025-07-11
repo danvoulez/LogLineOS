@@ -1,0 +1,6 @@
+- type: check_size
+  file: "{{timeline.location}}{{tenant_id}}_spans.jsonl"
+  max_mb: "{{timeline.max_file_size_mb}}"
+  then:
+    - type: rotate_file
+      file: "{{timeline.location}}{{tenant_id}}_spans.jsonl"
