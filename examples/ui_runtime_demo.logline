@@ -1,0 +1,7 @@
+[
+  {
+    "type": "span",
+    "component": "text_block",
+    "content": "Hello from the UI Runtime!"
+  }
+]
