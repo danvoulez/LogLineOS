@@ -1,0 +1,4 @@
+- type: read_jsonl_range
+  file: "{{timeline.location}}{{tenant_id}}_spans.jsonl"
+  start: "{{start_offset}}"
+  end: "{{end_offset}}"

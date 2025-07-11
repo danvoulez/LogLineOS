@@ -1,0 +1,2 @@
+- type: postgres_query
+  query: "SELECT * FROM spans WHERE tenant_id = '{{tenant_id}}' AND type = '{{span_type}}' ORDER BY created_at DESC LIMIT {{limit}}"
