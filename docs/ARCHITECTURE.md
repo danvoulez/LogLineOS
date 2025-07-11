@@ -19,6 +19,9 @@ Each approach has trade-offs in complexity and performance. See the main code fo
 The repository also ships with `ui_runtime/`, a minimal browser engine to render LogLine contracts.
 The `timeline/` module records spans in `.jsonl` files and can optionally sync to PostgreSQL.
 
+The `gateway/` directory handles universal routing, API key checks and network span logging.
+
+
 
 ## Further Ideas
 

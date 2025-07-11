@@ -1,0 +1,4 @@
+- type: verify_token
+  token: "{{request.headers.Authorization}}"
+  source: "../api_keys/tenants.json"
+  result: api_key_status

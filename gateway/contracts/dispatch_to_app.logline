@@ -1,0 +1,4 @@
+- type: http_forward
+  url: "{{backend_url}}"
+  body: "{{request.body}}"
+  timeout_ms: 5000
