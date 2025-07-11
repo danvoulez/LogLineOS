@@ -121,6 +121,20 @@ Edite os contratos visuais e recarregue a página para vê-los através do `runt
 O diretório `timeline/` guarda a linha do tempo factual do sistema. Cada instância registra spans em arquivos `.jsonl` e pode sincronizar com PostgreSQL, mas seu uso é opcional e modular. Ele pode ser removido ou movido para outro repositório sem afetar o restante do LogLineOS.
 
 
+## 🌐 Gateway
+O diretorio `gateway/` e o ponto de entrada universal para os apps. Ele valida chaves de API, roteia para scripts backend, gera heartbeats e fornece fallback se o app falhar.
+
+Para iniciar:
+
+```bash
+./gateway/launch_gateway.sh
+```
+
+Depois de iniciar, teste com:
+
+```bash
+curl -H "Authorization: Bearer abc123" http://localhost:8080/voulezvous/ping_app
+
 O diretório `ui_runtime/` é o motor visual oficial do LogLineOS. Ele executa e renderiza contratos `.logline` diretamente no navegador de forma canônica.
 
 Para testar:
@@ -144,6 +158,7 @@ Para iniciar:
 
 ```bash
 ./gateway/launch_gateway.sh
+
 ```
 ## 📬 Contato
 

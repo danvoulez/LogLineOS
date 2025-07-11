@@ -31,6 +31,8 @@ ui-demo:
 
 .PHONY: ui-demo
 
+# Launch the gateway
+
 gateway:
 	./gateway/launch_gateway.sh
 

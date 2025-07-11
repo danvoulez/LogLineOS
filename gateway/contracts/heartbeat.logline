@@ -1,0 +1,6 @@
+- type: append_jsonl
+  file: "../timeline/requests.jsonl"
+  span:
+    type: heartbeat
+    gateway_status: ok
+    timestamp: "{{timestamp}}"

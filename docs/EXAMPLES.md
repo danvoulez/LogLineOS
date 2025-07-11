@@ -23,6 +23,7 @@ You can run it with:
 ```bash
 make run workflow=examples/example.logline
 ```
+
 The `ui_runtime/` directory contains a standalone browser runtime for visual contracts. You can try it with:
 
 ```bash
@@ -38,5 +39,12 @@ The `gateway/` directory serves as the universal entry point for multi-tenant ap
 
 ```bash
 ./gateway/launch_gateway.sh
+```
+
+
+After starting, test with:
+
+```bash
+curl -H "Authorization: Bearer abc123" http://localhost:8080/voulezvous/ping_app
 ```
 

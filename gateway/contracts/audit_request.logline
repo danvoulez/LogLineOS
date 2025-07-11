@@ -1,0 +1,11 @@
+- type: append_jsonl
+  file: "../timeline/requests.jsonl"
+  span:
+    type: request
+    tenant_id: "{{tenant_id}}"
+    app_id: "{{app_id}}"
+    request_path: "{{request.path}}"
+    method: "{{request.method}}"
+    ip: "{{request.ip}}"
+    uuid: "{{uuid}}"
+    timestamp: "{{timestamp}}"

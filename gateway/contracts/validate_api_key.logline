@@ -1,0 +1,11 @@
+- type: read_json
+  file: "../config/tenants.json"
+  result: tenants
+- type: extract
+  value: "{{request.headers.Authorization}}"
+  regexp: "Bearer (.*)"
+  result: token
+- type: check_in
+  value: "{{token}}"
+  list: "{{tenants.tenants[tenant_id].apps[app_id].api_keys}}"
+  on_fail: deny

@@ -1,0 +1,9 @@
+- type: exec
+  cmd: "../apps/{{app_id}}/handle_request.sh"
+  stdin: "{{request.body}}"
+  env:
+    TENANT_ID: "{{tenant_id}}"
+    APP_ID: "{{app_id}}"
+    PATH_INFO: "{{request.path}}"
+  timeout_ms: 5000
+  result: app_output
