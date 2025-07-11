@@ -1,0 +1,12 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "load_state",
+    "keys": "{{action.keys}}",
+    "storage": "{{action.storage || 'localStorage'}}",
+    "prefix": "{{action.prefix || 'logline_state_'}}",
+    "decrypt": "{{action.decrypt}}",
+    "decryptionKey": "{{action.decryptionKey}}"
+  }
+]

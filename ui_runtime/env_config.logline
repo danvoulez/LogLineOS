@@ -1,0 +1,373 @@
+ [
+  {
+    "type": "span",
+    "component": "container",
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Configurações de Ambiente",
+        "style": {
+          "fontSize": "20px",
+          "fontWeight": "bold",
+          "marginBottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "backgroundColor": "#f9f9f9",
+          "padding": "16px",
+          "borderRadius": "4px",
+          "marginBottom": "24px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Ambiente: {{env.ENV}}",
+            "style": {
+              "marginBottom": "8px",
+              "fontWeight": "bold"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "URL da API: {{env.API_URL}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Backend URL: {{env.BACKEND_URL}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Nível de Log: {{env.LOG_LEVEL}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Cache habilitado: {{env.ENABLE_CACHE}}",
+            "style": {
+              "marginBottom": "16px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Configurações do Supabase",
+        "style": {
+          "fontSize": "18px",
+          "fontWeight": "bold",
+          "marginBottom": "12px",
+          "marginTop": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "backgroundColor": "#f9f9f9",
+          "padding": "16px",
+          "borderRadius": "4px",
+          "marginBottom": "24px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "URL: {{env.SUPABASE.URL}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Chave anônima: ••••••••••••••••",
+            "style": {
+              "marginBottom": "8px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Recursos Habilitados",
+        "style": {
+          "fontSize": "18px",
+          "fontWeight": "bold",
+          "marginBottom": "12px",
+          "marginTop": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "backgroundColor": "#f9f9f9",
+          "padding": "16px",
+          "borderRadius": "4px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Debug Panel: {{env.FEATURES.debugPanel}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Analytics: {{env.FEATURES.analytics}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Notificações: {{env.FEATURES.notifications}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          },
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Modo Offline: {{env.FEATURES.offlineMode}}",
+            "style": {
+              "marginBottom": "8px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Configurações de Banco de Dados",
+        "style": {
+          "fontSize": "18px",
+          "fontWeight": "bold",
+          "marginBottom": "12px",
+          "marginTop": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "marginBottom": "24px",
+          "display": "flex",
+          "gap": "12px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "button",
+            "label": "Usar PostgreSQL",
+            "style": {
+              "backgroundColor": "#9b59b6"
+            },
+            "action": {
+              "type": "local",
+              "handler": "changeDatabaseProvider",
+              "data": {
+                "provider": "postgres"
+              }
+            }
+          },
+          {
+            "type": "span",
+            "component": "button",
+            "label": "Usar Supabase",
+            "style": {
+              "backgroundColor": "#1abc9c"
+            },
+            "action": {
+              "type": "local",
+              "handler": "changeDatabaseProvider",
+              "data": {
+                "provider": "supabase"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "backgroundColor": "#f9f9f9",
+          "padding": "16px",
+          "borderRadius": "4px",
+          "marginBottom": "24px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Provedor atual: {{env.DATABASE_PROVIDER}}",
+            "style": {
+              "marginBottom": "16px",
+              "fontWeight": "bold"
+            }
+          },
+          {
+            "type": "span",
+            "component": "container",
+            "visible_if": "env.DATABASE_PROVIDER === 'postgres'",
+            "children": [
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "PostgreSQL LogLine",
+                "style": {
+                  "fontWeight": "bold",
+                  "marginBottom": "8px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Host: {{env.POSTGRES.HOST}}",
+                "style": {
+                  "marginBottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Banco: {{env.POSTGRES.DATABASE}}",
+                "style": {
+                  "marginBottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "API URL: {{env.POSTGRES.API_URL}}",
+                "style": {
+                  "marginBottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "button",
+                "label": "Ver Definição do Banco",
+                "style": {
+                  "marginTop": "8px",
+                  "backgroundColor": "#34495e"
+                },
+                "action": {
+                  "type": "navigate",
+                  "to": "{{env.POSTGRES.DEFINITION_FILE}}"
+                }
+              }
+            ]
+          },
+          {
+            "type": "span",
+            "component": "container",
+            "visible_if": "env.DATABASE_PROVIDER === 'supabase'",
+            "children": [
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Supabase",
+                "style": {
+                  "fontWeight": "bold",
+                  "marginBottom": "8px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "URL: {{env.SUPABASE.URL}}",
+                "style": {
+                  "marginBottom": "4px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Chave anônima: ••••••••••••••••",
+                "style": {
+                  "marginBottom": "4px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "marginTop": "24px",
+          "display": "flex",
+          "gap": "12px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "button",
+            "label": "Alternar para Desenvolvimento",
+            "style": {
+              "backgroundColor": "#3498db"
+            },
+            "action": {
+              "type": "local",
+              "handler": "changeEnvironment",
+              "data": {
+                "env": "development"
+              }
+            }
+          },
+          {
+            "type": "span",
+            "component": "button",
+            "label": "Alternar para Produção",
+            "style": {
+              "backgroundColor": "#27ae60"
+            },
+            "action": {
+              "type": "local",
+              "handler": "changeEnvironment",
+              "data": {
+                "env": "production"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "debug_panel",
+        "title": "Todas as variáveis de ambiente",
+        "watch": "env",
+        "style": {
+          "marginTop": "32px"
+        },
+        "visible_if": "env.FEATURES.debugPanel === true"
+      }
+    ]
+  }
+]

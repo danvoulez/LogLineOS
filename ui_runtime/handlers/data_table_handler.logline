@@ -1,0 +1,173 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "tokens": {
+      "overflow": "auto",
+      "width": "100%",
+      "margin": "16px 0"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "{{action.title}}",
+        "tokens": {
+          "font_weight": "bold",
+          "font_size": "18px",
+          "margin_bottom": "12px"
+        },
+        "if": "{{action.title}}"
+      },
+      {
+        "type": "span",
+        "component": "table",
+        "tokens": {
+          "width": "100%",
+          "border_collapse": "collapse",
+          "border": "1px solid var(--border)"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "table_header",
+            "tokens": {
+              "background_color": "var(--background-accent)",
+              "font_weight": "bold"
+            },
+            "children": [
+              {
+                "type": "span",
+                "component": "table_row",
+                "children": "{{action.columns.map(column => ({
+                  type: 'span',
+                  component: 'table_cell',
+                  content: column.title || column.field,
+                  tokens: {
+                    padding: '10px',
+                    border: '1px solid var(--border)',
+                    text_align: column.align || 'left'
+                  }
+                }))}}"
+              }
+            ]
+          },
+          {
+            "type": "span",
+            "component": "table_body",
+            "children": "{{action.data.map(row => ({
+              type: 'span',
+              component: 'table_row',
+              tokens: {
+                background_color: '{{$index % 2 === 0 ? \"var(--background)\" : \"var(--background-alt)\"}}'
+              },
+              children: action.columns.map(column => ({
+                type: 'span',
+                component: 'table_cell',
+                content: row[column.field] || '',
+                tokens: {
+                  padding: '8px 10px',
+                  border: '1px solid var(--border)',
+                  text_align: column.align || 'left'
+                }
+              }))
+            }))}}"
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "tokens": {
+          "display": "flex",
+          "justify_content": "space-between",
+          "margin_top": "10px",
+          "align_items": "center"
+        },
+        "if": "{{action.pagination}}",
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Total: {{action.total || action.data.length}} itens",
+            "tokens": {
+              "font_size": "14px",
+              "color": "var(--text-secondary)"
+            }
+          },
+          {
+            "type": "span",
+            "component": "container",
+            "tokens": {
+              "display": "flex",
+              "gap": "8px"
+            },
+            "children": [
+              {
+                "type": "span",
+                "component": "button",
+                "content": "Anterior",
+                "tokens": {
+                  "padding": "4px 10px",
+                  "background_color": "var(--background-accent)",
+                  "border": "1px solid var(--border)",
+                  "border_radius": "4px",
+                  "cursor": "pointer",
+                  "opacity": "{{action.pagination.current_page <= 1 ? '0.5' : '1'}}"
+                },
+                "action": {
+                  "operation": "{{action.pagination.on_page_change}}",
+                  "page": "{{action.pagination.current_page - 1}}",
+                  "size": "{{action.pagination.page_size}}"
+                },
+                "if": "{{action.pagination.current_page > 1}}"
+              },
+              {
+                "type": "span",
+                "component": "text_block",
+                "content": "Página {{action.pagination.current_page}} de {{Math.ceil(action.total/action.pagination.page_size)}}",
+                "tokens": {
+                  "padding": "4px 8px"
+                }
+              },
+              {
+                "type": "span",
+                "component": "button",
+                "content": "Próxima",
+                "tokens": {
+                  "padding": "4px 10px",
+                  "background_color": "var(--background-accent)",
+                  "border": "1px solid var(--border)",
+                  "border_radius": "4px",
+                  "cursor": "pointer",
+                  "opacity": "{{action.pagination.current_page >= Math.ceil(action.total/action.pagination.page_size) ? '0.5' : '1'}}"
+                },
+                "action": {
+                  "operation": "{{action.pagination.on_page_change}}",
+                  "page": "{{action.pagination.current_page + 1}}",
+                  "size": "{{action.pagination.page_size}}"
+                },
+                "if": "{{action.pagination.current_page < Math.ceil(action.total/action.pagination.page_size)}}"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Nenhum dado encontrado",
+        "tokens": {
+          "padding": "16px",
+          "text_align": "center",
+          "color": "var(--text-secondary)",
+          "font_style": "italic",
+          "background_color": "var(--background-alt)",
+          "border_radius": "4px",
+          "margin": "8px 0"
+        },
+        "if": "{{!action.data || action.data.length === 0}}"
+      }
+    ]
+  }
+]

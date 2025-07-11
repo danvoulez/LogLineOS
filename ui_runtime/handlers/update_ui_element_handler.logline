@@ -1,0 +1,10 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "update_ui_element",
+    "selector": "{{action.selector}}",
+    "property": "{{action.property}}",
+    "value": "{{action.value}}"
+  }
+]

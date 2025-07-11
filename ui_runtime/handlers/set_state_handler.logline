@@ -1,0 +1,24 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "set_state",
+    "key": "{{action.key}}",
+    "value": "{{action.value}}",
+    "merge": "{{action.merge}}",
+    "notify": "{{action.notify !== false}}"
+  },
+  {
+    "type": "span",
+    "operation": "log",
+    "level": "debug",
+    "message": "Estado atualizado: {{action.key}} = {{action.value}}",
+    "if": "{{action.debug || action.log}}"
+  },
+  {
+    "type": "span",
+    "operation": "persist_state",
+    "key": "{{action.key}}",
+    "if": "{{action.persist === true}}"
+  }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "type": "span",
+    "component": "debug_panel",
+    "title": "{{action.title}}",
+    "watch": "{{action.watch}}",
+    "force": "{{action.force}}"
+  }
+]

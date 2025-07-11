@@ -1,0 +1,10 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "assert_text",
+    "selector": "{{action.selector}}",
+    "expected": "{{action.expected}}",
+    "test_id": "{{action.test_id}}"
+  }
+]

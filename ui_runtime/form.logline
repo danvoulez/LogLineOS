@@ -1,0 +1,186 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Formulário de Exemplo",
+        "style": {
+          "fontSize": "28px",
+          "fontWeight": "bold",
+          "marginBottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Este é um exemplo de formulário interativo criado com arquivos .logline",
+        "style": {
+          "fontSize": "16px",
+          "color": "#666",
+          "marginBottom": "32px"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "style": {
+      "maxWidth": "600px",
+      "backgroundColor": "white",
+      "padding": "32px",
+      "borderRadius": "8px",
+      "boxShadow": "0 2px 8px rgba(0, 0, 0, 0.1)"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Dados Pessoais",
+        "style": {
+          "fontSize": "20px",
+          "fontWeight": "bold",
+          "marginBottom": "24px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "marginBottom": "16px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Nome Completo",
+            "style": {
+              "marginBottom": "8px",
+              "fontWeight": "500"
+            }
+          },
+          {
+            "type": "span",
+            "component": "input_box",
+            "name": "fullName",
+            "prompt": "Digite seu nome completo"
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "marginBottom": "16px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "E-mail",
+            "style": {
+              "marginBottom": "8px",
+              "fontWeight": "500"
+            }
+          },
+          {
+            "type": "span",
+            "component": "input_box",
+            "name": "email",
+            "prompt": "Digite seu e-mail",
+            "inputType": "email"
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "marginBottom": "16px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Senha",
+            "style": {
+              "marginBottom": "8px",
+              "fontWeight": "500"
+            }
+          },
+          {
+            "type": "span",
+            "component": "input_box",
+            "name": "password",
+            "prompt": "Digite sua senha",
+            "inputType": "password"
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "container",
+        "style": {
+          "marginBottom": "24px"
+        },
+        "children": [
+          {
+            "type": "span",
+            "component": "text_block",
+            "content": "Mensagem",
+            "style": {
+              "marginBottom": "8px",
+              "fontWeight": "500"
+            }
+          },
+          {
+            "type": "span",
+            "component": "input_box",
+            "name": "message",
+            "prompt": "Digite sua mensagem",
+            "style": {
+              "height": "100px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "span",
+        "component": "button",
+        "label": "Enviar Formulário",
+        "style": {
+          "backgroundColor": "#3498db",
+          "padding": "12px 24px",
+          "fontSize": "16px"
+        },
+        "action": {
+          "type": "submit",
+          "to": "/api/submit-form",
+          "method": "POST",
+          "onSuccess": {
+            "type": "navigate",
+            "to": "form_success.logline"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "button",
+    "label": "Voltar para página inicial",
+    "style": {
+      "marginTop": "32px",
+      "backgroundColor": "transparent",
+      "color": "#3498db",
+      "border": "1px solid #3498db"
+    },
+    "action": {
+      "type": "navigate",
+      "to": "main_content.logline"
+    }
+  }
+]

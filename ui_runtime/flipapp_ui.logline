@@ -1,0 +1,22 @@
+[
+  {
+    "type": "layout",
+    "description": "Layout principal da aplicação LogLine",
+    "version": "1.0.0",
+    "layout": {
+      "sidebar": {
+        "component": "sidebar_ui.logline"
+      },
+      "main": {
+        "component": "main_content.logline"
+      }
+    }
+  },
+  {
+    "type": "span",
+    "component": "meta_info",
+    "application": "LogLine UI Runtime",
+    "version": "1.0.0",
+    "created_at": "2025-07-10"
+  }
+]

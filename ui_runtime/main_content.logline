@@ -1,0 +1,135 @@
+[
+  {
+    "type": "span",
+    "component": "container",
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Bem-vindo ao LogLine UI Runtime",
+        "style": {
+          "fontSize": "28px",
+          "fontWeight": "bold",
+          "marginBottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Este é um interpretador de UI que renderiza interfaces web a partir de arquivos .logline, sem usar frameworks como React, Vue ou Angular.",
+        "style": {
+          "fontSize": "16px",
+          "color": "#666",
+          "marginBottom": "32px"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "style": {
+      "backgroundColor": "#f5f5f5",
+      "padding": "20px",
+      "borderRadius": "8px",
+      "marginBottom": "24px"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Como funciona?",
+        "style": {
+          "fontSize": "20px",
+          "fontWeight": "bold",
+          "marginBottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "1. Arquivos .logline descrevem a interface em formato JSON",
+        "style": {
+          "marginBottom": "8px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "2. O interpretador lê os arquivos e renderiza os componentes",
+        "style": {
+          "marginBottom": "8px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "3. As ações dos componentes são executadas pelo runtime",
+        "style": {
+          "marginBottom": "8px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "4. Navegação entre telas carrega novos arquivos .logline",
+        "style": {
+          "marginBottom": "8px"
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "container",
+    "style": {
+      "marginBottom": "24px"
+    },
+    "children": [
+      {
+        "type": "span",
+        "component": "text_block",
+        "content": "Exemplo interativo",
+        "style": {
+          "fontSize": "20px",
+          "fontWeight": "bold",
+          "marginBottom": "16px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "input_box",
+        "prompt": "Digite seu nome",
+        "name": "username",
+        "style": {
+          "marginBottom": "16px",
+          "width": "300px"
+        }
+      },
+      {
+        "type": "span",
+        "component": "button",
+        "label": "Enviar",
+        "action": {
+          "type": "submit",
+          "to": "/api/submit",
+          "method": "POST",
+          "onSuccess": {
+            "type": "navigate",
+            "to": "dashboard.logline"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "type": "span",
+    "component": "text_block",
+    "content": "Use o menu lateral para navegar entre as páginas de demonstração.",
+    "style": {
+      "fontSize": "14px",
+      "fontStyle": "italic",
+      "color": "#888"
+    }
+  }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "trigger_file_input",
+    "input_name": "{{action.name}}",
+    "multiple": "{{action.multiple}}"
+  }
+]

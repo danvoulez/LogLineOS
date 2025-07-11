@@ -1,0 +1,9 @@
+[
+  {
+    "type": "span",
+    "component": "image",
+    "src": "{{action.src}}",
+    "alt": "{{action.alt}}",
+    "style": "{{action.style}}"
+  }
+]

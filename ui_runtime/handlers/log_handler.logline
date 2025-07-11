@@ -1,0 +1,10 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "log",
+    "level": "{{action.level}}",
+    "message": "{{action.message}}",
+    "data": "{{action.data}}"
+  }
+]

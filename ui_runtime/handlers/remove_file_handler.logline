@@ -1,0 +1,22 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "remove_file",
+    "input_name": "{{action.name}}",
+    "index": "{{action.index}}"
+  },
+  {
+    "type": "span",
+    "operation": "set_state",
+    "key": "form.{{action.name}}",
+    "value": "{{form[action.name].filter((_, i) => i !== action.index)}}",
+    "notify": true
+  },
+  {
+    "type": "span",
+    "operation": "log",
+    "level": "info",
+    "message": "Arquivo removido do input {{action.name}}, índice {{action.index}}"
+  }
+]

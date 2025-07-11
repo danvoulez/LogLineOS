@@ -1,0 +1,11 @@
+[
+  {
+    "type": "span",
+    "component": "syscall",
+    "operation": "validate_form",
+    "form_id": "{{action.form_id}}",
+    "validation_rules": "{{action.validation_rules}}",
+    "success_action": "{{action.success_action}}",
+    "error_action": "{{action.error_action}}"
+  }
+]

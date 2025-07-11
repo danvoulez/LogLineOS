@@ -1,0 +1,112 @@
+[
+  {
+    "type": "token",
+    "name": "theme_name",
+    "value": "default"
+  },
+  {
+    "type": "token",
+    "name": "color_primary",
+    "value": "#3498db"
+  },
+  {
+    "type": "token",
+    "name": "color_secondary",
+    "value": "#2ecc71"
+  },
+  {
+    "type": "token",
+    "name": "color_accent",
+    "value": "#9b59b6"
+  },
+  {
+    "type": "token",
+    "name": "color_background",
+    "value": "#f9f9f9"
+  },
+  {
+    "type": "token",
+    "name": "color_text",
+    "value": "#333333"
+  },
+  {
+    "type": "token",
+    "name": "color_error",
+    "value": "#e74c3c"
+  },
+  {
+    "type": "token",
+    "name": "color_warning",
+    "value": "#f39c12"
+  },
+  {
+    "type": "token",
+    "name": "color_success",
+    "value": "#27ae60"
+  },
+  {
+    "type": "token",
+    "name": "color_border",
+    "value": "#dddddd"
+  },
+  {
+    "type": "token",
+    "name": "color_shadow",
+    "value": "rgba(0, 0, 0, 0.1)"
+  },
+  {
+    "type": "token",
+    "name": "font_family",
+    "value": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"
+  },
+  {
+    "type": "token",
+    "name": "font_size_base",
+    "value": "16px"
+  },
+  {
+    "type": "token",
+    "name": "font_size_small",
+    "value": "14px"
+  },
+  {
+    "type": "token",
+    "name": "font_size_large",
+    "value": "18px"
+  },
+  {
+    "type": "token",
+    "name": "spacing_xs",
+    "value": "4px"
+  },
+  {
+    "type": "token",
+    "name": "spacing_sm",
+    "value": "8px"
+  },
+  {
+    "type": "token",
+    "name": "spacing_md",
+    "value": "16px"
+  },
+  {
+    "type": "token",
+    "name": "spacing_lg",
+    "value": "24px"
+  },
+  {
+    "type": "token",
+    "name": "spacing_xl",
+    "value": "32px"
+  },
+  {
+    "type": "token",
+    "name": "border_radius",
+    "value": "4px"
+  },
+  {
+    "type": "token",
+    "name": "box_shadow",
+    "value": "0 2px 4px rgba(0, 0, 0, 0.1)"
+  }
+]
