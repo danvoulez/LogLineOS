@@ -30,3 +30,8 @@ ui-demo:
 	cd ui_runtime && ./start_demo.sh
 
 .PHONY: ui-demo
+# Launch the gateway
+gateway:
+	./gateway/launch_gateway.sh
+
+.PHONY: gateway

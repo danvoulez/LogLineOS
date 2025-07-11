@@ -1,0 +1,3 @@
+- type: block_ip
+  ip: "{{request.ip}}"
+  reason: "abuse detected"

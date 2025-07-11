@@ -32,3 +32,9 @@ cd ui_runtime && ./start_demo.sh
 Then open `http://localhost:8000/index.html?file=../examples/ui_runtime_demo.logline` to render the example `examples/ui_runtime_demo.logline`.
 
 Span history can be persisted by instantiating the `timeline/` module. Use `timeline_instance.logline` to define where `.jsonl` files live and optionally sync them to Postgres.
+
+The `gateway/` directory serves as the universal entry point for multi-tenant apps. Start it with:
+
+```bash
+./gateway/launch_gateway.sh
+```

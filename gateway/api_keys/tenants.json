@@ -1,0 +1,7 @@
+{
+  "sample_tenant": {
+    "sample_app": {
+      "keys": ["demo-key"]
+    }
+  }
+}

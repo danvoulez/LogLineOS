@@ -119,6 +119,16 @@ Edite os contratos visuais e recarregue a página para vê-los através do `runt
 
 O diretório `timeline/` guarda a linha do tempo factual do sistema. Cada instância registra spans em arquivos `.jsonl` e pode sincronizar com PostgreSQL, mas seu uso é opcional e modular. Ele pode ser removido ou movido para outro repositório sem afetar o restante do LogLineOS.
 
+
+## 🌐 Gateway
+
+O diretório `gateway/` é a porta de entrada universal para todos os apps. Ele roteia por tenant e app, valida chaves e registra spans de rede.
+
+Para iniciar:
+
+```bash
+./gateway/launch_gateway.sh
+```
 ## 📬 Contato
 
 Desenvolvido por [dan@voulezvous.ai]  

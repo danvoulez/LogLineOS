@@ -1,0 +1,5 @@
+- type: when
+  condition: "{{backend_unreachable}}"
+  then:
+    - type: serve_file
+      file: "../fallback/{{app}}/index.html"
