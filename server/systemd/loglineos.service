@@ -1,0 +1,12 @@
+[Unit]
+Description=LogLineOS Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/loglineos
+ExecStart=/usr/local/bin/loglineos
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

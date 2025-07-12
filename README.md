@@ -130,6 +130,18 @@ Para iniciar:
 ./gateway/launch_gateway.sh
 ```
 
+## 🖥️ Servidor Oficial
+
+O diretório `server/` contém o gateway multitenant usado em produção. Ele expõe
+rotas HTTP e WebSocket para executar contratos `.logline` e registra todos os
+spans em `server/data/spans/`.
+
+Para iniciar o servidor diretamente:
+
+```bash
+go run server/main.go
+```
+
 Depois de iniciar, teste com:
 
 ```bash

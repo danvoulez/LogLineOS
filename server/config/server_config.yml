@@ -1,0 +1,4 @@
+port: 8888
+debug: true
+use_postgres: false
+postgres_dsn: "postgres://user:pass@localhost:5432/loglineos?sslmode=disable"
