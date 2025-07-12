@@ -1,0 +1,31 @@
+- type: execution_rule
+  id: "rule.track_embedding_errors"
+  when: { type.in: ["embedmind.embedding.failed", "embedmind.vector.failed"] }
+  then:
+    - type: syscall.file_append
+      path: "embedmind/errors.jsonl"
+      content: "{{ JSON_STRINGIFY(when.payload) }}"
+    - type: generate_span
+      span:
+        type: "embedmind.error.tracked"
+        payload:
+          error_type: "{{ when.type }}"
+          error_message: "{{ when.payload.error | default: 'unknown' }}"
+          span_id: "{{ when.payload.span_id | default: '' }}"
+          timestamp: "{{ NOW() }}"
+    - type: log
+      message: "Embedding error tracked: {{ when.payload }}"
+    - type: conditional
+      if: "{{ when.payload.error | contains: 'out-of-memory' }}"
+      then:
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "Critical error: out-of-memory in embedding engine! Span: {{ when.payload.span_id }}"
+    - type: conditional
+      if: "{{ when.payload.error | contains: 'corruption' }}"
+      then:
+        - type: execute_contract
+          id: "embedmind.check_integrity"
+          input: {}
+        - type: log
+          message: "Vector index integrity check triggered due to error."

@@ -1,0 +1,25 @@
+- type: contract
+  id: "embedmind.check_integrity"
+  description: "Valida integridade dos índices vetoriais e registra anomalias."
+  actions:
+    - type: syscall.vector.stats
+      index: "main_index"
+      output: "main_stats"
+    - type: conditional
+      if: "{{ main_stats.corruption_detected == true }}"
+      then:
+        - type: generate_span
+          span:
+            type: "embedmind.index.anomaly"
+            payload: { index: "main_index", stats: "{{ main_stats }}", detected_at: "{{ NOW() }}" }
+        - type: log
+          message: "Corruption detected on main_index: {{ main_stats }}"
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "Corruption detected in embedmind main_index at {{ NOW() }}. Immediate action required."
+    - type: log
+      message: "Vector index integrity checked at {{ NOW() }}."
+    - type: syscall.file_append
+      path: "embedmind/integrity_log.jsonl"
+      content: "{{ JSON_STRINGIFY({ timestamp: NOW(), index: 'main_index', stats: main_stats }) }}"
+  returns: "{{ main_stats }}"

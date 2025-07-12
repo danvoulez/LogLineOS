@@ -1,0 +1,35 @@
+- type: register
+  id: "repl.entry"
+  description: "Ponto de entrada para o REPL do LogLineOS."
+  trigger: { type: "kernel_action", on: "console_input_loop" }
+  actions:
+    - type: repeat
+      body:
+        - type: syscall.console.read_line
+          prompt: "loglineos> "
+          output: "user_input"
+          on_failure:
+            - type: generate_span
+              span:
+                type: "console.input.failed"
+                payload: { error: "{{ ERROR() }}" }
+            - type: continue
+
+        - type: log
+          message: "REPL input recebido: {{ user_input }}"
+
+        - type: conditional
+          if: "{{ user_input in ['state.flush', 'state.rebuild_full', 'selfheal'] }}"
+          then:
+            - type: syscall.console.confirm
+              prompt: "Confirmar execução do comando potencialmente perigoso '{{ user_input }}'? (y/N): "
+              output: "user_confirmed"
+            - type: conditional
+              if: "{{ user_confirmed != 'y' }}"
+              then:
+                - type: log
+                  message: "Comando crítico abortado pelo usuário: {{ user_input }}"
+                - type: continue
+
+        - type: syscall.timeline.create_span
+          span: { type: "console_affair", status: "input_received", payload: { command: "{{ user_input }}" } }

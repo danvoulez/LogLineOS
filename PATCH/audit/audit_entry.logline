@@ -1,0 +1,14 @@
+- type: execution_rule
+  id: "rule.audit_contract_changes"
+  description: "Registra uma entrada de auditoria para cada alteração em um arquivo de contrato."
+  when: { type: "syscall.file_write", payload.path.endsWith: ".logline" }
+  then:
+    - type: generate_span
+      span:
+        type: "audit.contract.changed"
+        status: "recorded"
+        payload:
+          path: "{{ when.payload.path }}"
+          author: "{{ when.context.user_id | default: 'system' }}"
+          # A syscall 'file_write' deveria incluir o diff ou o conteúdo antigo no seu evento de sucesso.
+          diff: "{{ when.payload.diff }}"

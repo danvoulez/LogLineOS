@@ -1,0 +1,32 @@
+- type: contract
+  id: "constitution.enforce"
+  input: { name: "span_to_check", type: "json" }
+  actions:
+    - type: syscall.file_read
+      path: "constitution/constitution@v1.0.logline" # Deveria ler a versão do config.yml
+      output: "constitution_doc"
+    - type: set_variable
+      name: "is_valid"
+      value: true
+
+    - type: loop
+      for: "{{ constitution_doc.clauses }}"
+      as: "clause"
+      body:
+        - type: evaluate_expression # O motor precisa de um avaliador de expressões lógicas
+          expression: "{{ clause.rule }}"
+          context: { span: "{{ input.span_to_check }}" }
+          output: "clause_passed"
+        - type: conditional
+          if: "{{ clause_passed == false }}"
+          then:
+            - type: set_variable
+              name: "is_valid"
+              value: false
+            - type: execute_contract
+              id: "constitution.register_violation"
+              input: { violating_span: "{{ input.span_to_check }}", violated_clause: "{{ clause }}" }
+
+  returns:
+    span: "{{ input.span_to_check }}"
+    valid: "{{ is_valid }}"

@@ -1,0 +1,9 @@
+- type: contract
+  id: "repl.selfheal"
+  description: "Executa ações automáticas de recuperação dos módulos essenciais."
+  actions:
+    - type: execute_contract
+      id: "server.recovery_plan"
+      input: { reason: "Comando selfheal do REPL" }
+    - type: log
+      message: "Selfheal trigger from REPL executed."

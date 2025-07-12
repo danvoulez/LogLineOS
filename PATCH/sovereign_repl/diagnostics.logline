@@ -1,0 +1,69 @@
+- type: contract
+  id: "diagnostics.run"
+  description: "Executa diagnóstico dos módulos principais e retorna status detalhado."
+  input: { command: "string", error: "string" }
+  actions:
+    - type: syscall.system.check_service
+      service: "loglineos"
+      output: "os_status"
+      on_failure:
+        - type: log
+          message: "Falha ao checar serviço loglineos"
+    - type: syscall.system.check_service
+      service: "postgres"
+      output: "db_status"
+      on_failure:
+        - type: log
+          message: "Falha ao checar serviço postgres"
+    - type: syscall.system.check_service
+      service: "redis"
+      output: "kv_status"
+      on_failure:
+        - type: log
+          message: "Falha ao checar serviço redis"
+    - type: syscall.file_exists
+      path: "state.bin"
+      output: "state_file_exists"
+    - type: syscall.file_stats
+      path: "state.bin"
+      output: "state_file_stats"
+      on_failure:
+        - type: log
+          message: "Falha ao obter estatísticas do state.bin"
+    - type: syscall.system.uptime
+      output: "system_uptime"
+    - type: syscall.system.memory_usage
+      output: "memory_usage"
+    - type: syscall.system.disk_usage
+      output: "disk_usage"
+    - type: log
+      message: "Diagnostics executed for command '{{ input.command }}' after error: {{ input.error }}"
+    - type: generate_span
+      span:
+        type: "diagnostics.result"
+        payload:
+          command: "{{ input.command }}"
+          error: "{{ input.error }}"
+          os_status: "{{ os_status }}"
+          db_status: "{{ db_status }}"
+          kv_status: "{{ kv_status }}"
+          state_file_exists: "{{ state_file_exists }}"
+          state_file_stats: "{{ state_file_stats }}"
+          system_uptime: "{{ system_uptime }}"
+          memory_usage: "{{ memory_usage }}"
+          disk_usage: "{{ disk_usage }}"
+          timestamp: "{{ NOW() }}"
+    - type: conditional
+      if: "{{ os_status != 'running' || db_status != 'running' || kv_status != 'running' }}"
+      then:
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "Diagnostics failure detected! loglineos: {{ os_status }}, postgres: {{ db_status }}, redis: {{ kv_status }}."
+  returns:
+    os: "{{ os_status }}"
+    db: "{{ db_status }}"
+    kv: "{{ kv_status }}"
+    state_file: "{{ state_file_exists }}"
+    system_uptime: "{{ system_uptime }}"
+    memory_usage: "{{ memory_usage }}"
+    disk_usage: "{{ disk_usage }}"

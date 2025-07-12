@@ -1,0 +1,25 @@
+- type: execution_rule
+  id: "rule.track_command_metrics"
+  when: { type.in: ["console_affair.completed", "console_affair.failed"] }
+  then:
+    - type: generate_span
+      span:
+        type: "console.command.metric"
+        payload:
+          command: "{{ when.payload.command }}"
+          status: "{{ when.status }}"
+          started_at: "{{ when.payload.started_at | default: when.created_at }}"
+          finished_at: "{{ NOW() }}"
+          latency_ms: "{{ TIME_DIFF_MS((when.payload.started_at | default: when.created_at), NOW()) }}"
+          error: "{{ when.payload.error | default: '' }}"
+    - type: syscall.file_append
+      path: "sovereign_repl/command_metrics.jsonl"
+      content: "{{ JSON_STRINGIFY({ timestamp: NOW(), command: when.payload.command, status: when.status, latency_ms: TIME_DIFF_MS((when.payload.started_at | default: when.created_at), NOW()), error: when.payload.error | default: '' }) }}"
+    - type: conditional
+      if: "{{ when.status == 'failed' }}"
+      then:
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "REPL command '{{ when.payload.command }}' failed: {{ when.payload.error }}"
+    - type: log
+      message: "Command metrics for '{{ when.payload.command }}' recorded at {{ NOW() }}."
