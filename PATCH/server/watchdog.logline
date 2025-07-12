@@ -1,0 +1,31 @@
+# ==============================================================================
+# Contrato: watchdog.logline
+# Propósito: Supervisor de "Assuntos" travados.
+# Descrição: Monitora continuamente a timeline em busca de processos que
+#            estão em um estado intermediário por tempo demais e os marca como falhados.
+# ==============================================================================
+
+- type: contract
+  id: "server.watchdog.start"
+  input: { name: "config", type: "json" }
+  actions:
+    - type: repeat
+      interval: "{{ config.interval_seconds }}s"
+      body:
+        - type: syscall.timeline.query
+          query: "SELECT id FROM spans WHERE type = 'api_affair' AND status NOT IN ('completed', 'failed') AND updated_at < NOW() - '{{ config.affair_timeout_seconds }}s'"
+          output: "stalled_affairs"
+        - type: loop
+          for: "{{ stalled_affairs }}"
+          as: "stalled"
+          body:
+            - type: syscall.timeline.update_span
+              id: "{{ stalled.id }}"
+              update:
+                status: "failed"
+                payload.error: { message: "Processo expirou (timeout) pelo watchdog.", http_code: 504 }
+            - type: generate_span
+              span:
+                type: "watchdog.process_reaped"
+                status: "completed"
+                payload: { reaped_affair_id: "{{ stalled.id }}" }

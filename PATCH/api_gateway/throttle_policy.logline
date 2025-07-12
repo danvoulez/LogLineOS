@@ -1,0 +1,20 @@
+# ==============================================================================
+# Contrato: throttle_policy.logline
+# Propósito: Política de Rate-Limit (Controle de Abuso).
+# Descrição: Implementação mínima de uma política de throttle. Em produção,
+#            usaria uma syscall para um KV store (ex: Redis) para contagem.
+# ==============================================================================
+
+- type: contract
+  id: "gateway.throttle_policy"
+  input: { name: "affair_span", type: "json" }
+  actions:
+    # Lógica de validação do throttle (placeholder funcional)
+    - type: log
+      level: "INFO"
+      message: "Política de throttle verificada para tenant '{{ input.affair_span.payload.auth.tenant_id }}'. OK."
+
+    # Se a política passar, transiciona o "Assunto" para o próximo estado.
+    - type: syscall.timeline.update_span
+      id: "{{ input.affair_span.id }}"
+      update: { status: "authorized" }

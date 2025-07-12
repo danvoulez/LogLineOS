@@ -1,0 +1,27 @@
+# ==============================================================================
+# Contrato: server_entry.logline
+# Propósito: Ponto de entrada mestre do servidor LogLineOS.
+# Descrição: Carrega a configuração, inicia o listener de rede e o watchdog.
+# ==============================================================================
+
+- type: register
+  id: "server.entry.genesis"
+  actions:
+    - type: log
+      level: "INFO"
+      message: "LogLineOS [Gênesis] iniciando..."
+    - type: syscall.file.read_yaml
+      path: "server/config.yml"
+      output: "config"
+    - type: syscall.system.write_pid_file
+      path: "{{ config.server.pid_file }}"
+    - type: parallel
+      tasks:
+        - name: "network_listener"
+          type: syscall.http_listen
+          host: "{{ config.server.host }}"
+          port: "{{ config.server.port }}"
+        - name: "watchdog_process"
+          type: execute_contract
+          id: "server.watchdog.start"
+          input: { config: "{{ config.watchdog }}" }

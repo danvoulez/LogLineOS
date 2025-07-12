@@ -1,0 +1,33 @@
+# ==============================================================================
+# Contrato: route_request.logline
+# Propósito: Roteamento de requisições para contratos de negócio.
+# Descrição: Mapeia um path de URL para a execução de um contrato específico,
+#            agindo como o roteador principal da API.
+# ==============================================================================
+
+- type: contract
+  id: "gateway.route_request"
+  input: { name: "affair_span", type: "json" }
+  actions:
+    - type: switch
+      on: "{{ input.affair_span.payload.request.path }}"
+      cases:
+        - case: "/api/v1/system/status"
+          - type: execute_contract
+            id: "system.get_status"
+            output: "result"
+            on_failure:
+              - type: syscall.timeline.update_span
+                id: "{{ input.affair_span.id }}"
+                update: { status: "failed", payload.error: { message: "Falha ao executar contrato de status.", http_code: 503 } }
+              - type: exit_contract
+
+      default:
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update: { status: "failed", payload.error: { message: "Rota não encontrada: {{ input.affair_span.payload.request.path }}", http_code: 404 } }
+        - type: exit_contract
+
+    - type: syscall.timeline.update_span
+      id: "{{ input.affair_span.id }}"
+      update: { status: "completed", payload.result: "{{ result }}" }
