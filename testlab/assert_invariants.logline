@@ -1,0 +1,32 @@
+- type: contract
+  id: "testlab.assert_invariants"
+  actions:
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type: "state.updated" } }
+      output: "state_updates"
+      on_failure:
+        - type: log
+          message: "Falha ao buscar atualizações de estado."
+        - type: exit_contract
+    - type: loop
+      for: "{{ state_updates }}"
+      as: "update"
+      body:
+        - type: retry
+          attempts: 2
+          delay: 1
+          body:
+            - type: syscall.assert
+              actual: "{{ update }}"
+              expected: "{{ APPLY_INVARIANT_RULES(update) }}"
+              output: "invariant_result"
+              on_failure:
+                - type: log
+                  message: "Falha na verificação de invariante para: {{ update.id }}"
+            - type: generate_span
+              span:
+                type: "test.invariant"
+                payload: { update_id: "{{ update.id }}", result: "{{ invariant_result }}" }
+        - type: log
+          message: "Verificação de invariante realizada para span: {{ update.id }}"

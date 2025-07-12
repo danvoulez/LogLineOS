@@ -1,0 +1,11 @@
+- type: contract
+  id: "audit.diff"
+  input: { old_content: "string", new_content: "string" }
+  actions:
+    - type: llm
+      goal: "Compare as duas versões deste contrato LogLine e gere um changelog em Markdown descrevendo as mudanças de forma semântica."
+      input:
+        old: "{{ input.old_content }}"
+        new: "{{ input.new_content }}"
+      output: "changelog"
+  returns: "{{ changelog }}"

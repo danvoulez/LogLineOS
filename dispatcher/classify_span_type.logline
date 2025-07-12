@@ -1,0 +1,70 @@
+# ==============================================================================
+# Contrato: classify_span_type.logline
+# Propósito: Classificação semântica de spans para o runtime apropriado.
+# Descrição: Analisa o tipo de um span e determina o runtime de destino (core ou ui).
+#            É uma tabela de roteamento declarativa e extensível.
+# ==============================================================================
+
+- type: contract
+  id: "dispatcher.classify_span"
+  input: { name: "affair_span", type: "json" }
+  actions:
+    - type: switch
+      on: "{{ input.affair_span.payload.original_span.type }}"
+
+      # Mapeamento para o Core Runtime (Lógica, Sistema, Persistência, IA)
+      - case.in:
+          - 'run'
+          - 'loop'
+          - 'commit'
+          - 'wasm'
+          - 'execute_contract'
+          - 'syscall.system.service_restart'
+          - 'syscall.system.pid_status'
+          - 'syscall.file_read'
+          - 'syscall.file_write'
+          - 'syscall.postgres.write'
+          - 'syscall.postgres.query'
+          - 'syscall.keyvalue.set'
+          - 'syscall.llm.invoke'
+          - 'syscall.vector.search'
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update:
+            status: "classified"
+            payload.classification:
+              target_runtime: "core_runtime"
+              reason: "Logical, System or Persistence Operation"
+
+      # Mapeamento para o UI Runtime (Visual, Interação, Animação)
+      - case.in:
+          - 'ui.application'
+          - 'ui.container'
+          - 'ui.text'
+          - 'ui.button'
+          - 'ui.input.text'
+          - 'ui_event.click'
+          - 'ui_event.submit'
+          - 'ui_event.input_change'
+          - 'render'
+          - 'open_page'
+          - 'animate'
+          - 'gesture.swipe'
+          - 'ui.component.update'
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update:
+            status: "classified"
+            payload.classification:
+              target_runtime: "ui_runtime"
+              reason: "Visual or User Interaction Operation"
+
+      # Caso Padrão (Fallback para análise semântica)
+      default:
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update:
+            status: "classification_pending_llm"
+            payload.classification:
+              target_runtime: "unknown"
+              reason: "Unrecognized span type. Requires semantic analysis."

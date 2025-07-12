@@ -1,0 +1,24 @@
+- type: contract
+  id: "state.health_check"
+  description: "Verifica integridade do estado materializado e gera span de alerta se detectar anomalias."
+  actions:
+    - type: syscall.keyvalue.stats
+      output: "kv_stats"
+    - type: conditional
+      if: "{{ kv_stats.corruption_detected == true }}"
+      then:
+        - type: generate_span
+          span:
+            type: "state.health.anomaly"
+            payload: { detected_at: "{{ NOW() }}", stats: "{{ kv_stats }}" }
+        - type: log
+          message: "Anomalia de integridade detectada: {{ kv_stats }}"
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "Anomalia de integridade do estado detectada: {{ kv_stats }}"
+    - type: log
+      message: "Health check do estado derivado completado."
+    - type: syscall.file_append
+      path: "state_builder/health_check_log.jsonl"
+      content: "{{ JSON_STRINGIFY({ timestamp: NOW(), stats: kv_stats }) }}"
+  returns: "{{ kv_stats }}"

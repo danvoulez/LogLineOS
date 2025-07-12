@@ -1,0 +1,12 @@
+- type: execution_rule
+  id: "rule.instantiate_goal_affair"
+  description: "Cria um 'Assunto de Objetivo' para cada intenção recebida pelo kernel."
+  when: { type: "kernel_action", on: "interpret_goal" }
+  then:
+    - type: syscall.timeline.create_span
+      span:
+        type: "goal_affair"
+        status: "received"
+        payload:
+          goal: "{{ when.payload.goal }}"
+          context: "{{ when.payload.context }}"

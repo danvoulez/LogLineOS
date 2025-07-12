@@ -1,0 +1,3 @@
+active_version: "constitution@v1.0.logline"
+enforcement_mode: "strict" # 'strict' rejeita, 'log' apenas avisa
+notify_on_violation: true

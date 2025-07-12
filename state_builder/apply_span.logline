@@ -1,0 +1,46 @@
+- type: execution_rule
+  id: "rule.apply_state_changing_spans"
+  description: "Aplica spans relevantes ao estado derivado assim que ocorrem."
+  when: { type.in: "{{ MANIFEST('state_builder/state_manifest.yml').tracked_types }}" }
+  then:
+    - type: generate_span
+      span:
+        type: "state.update.attempt"
+        payload: { attempted_span_id: "{{ when.id }}", attempted_type: "{{ when.type }}", attempted_payload: "{{ when.payload }}" }
+
+    - type: conditional
+      if: "{{ when.payload.user_id == null }}"
+      then:
+        - type: generate_span
+          span:
+            type: "state.update.failed"
+            payload: { span_id: "{{ when.id }}", reason: "user_id ausente" }
+        - type: log
+          message: "Validação falhou: user_id ausente em {{ when.type }}"
+        - type: exit_rule
+
+    - type: switch
+      on: "{{ when.type }}"
+      cases:
+        - case: "user.profile.created"
+          - type: retry
+            attempts: 3
+            delay: 1
+            body:
+              - type: syscall.keyvalue.set
+                key: "user:{{ when.payload.user_id }}:profile"
+                value: "{{ when.payload.profile_data }}"
+                on_failure:
+                  - type: generate_span
+                    span:
+                      type: "state.kv.failed"
+                      payload: { key: "user:{{ when.payload.user_id }}:profile", span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+                  - type: log
+                    message: "KV set falhou para user.profile.created: {{ ERROR() }}"
+        # ... [similar error handling for other cases]
+    - type: generate_span
+      span:
+        type: "state.updated"
+        payload: { applied_span_id: "{{ when.id }}" }
+    - type: log
+      message: "Estado atualizado para span {{ when.id }} do tipo {{ when.type }}"

@@ -1,0 +1,13 @@
+# ==============================================================================
+# Contrato: system.get_status.logline
+# Propósito: Um contrato de negócio simples para teste de roteamento.
+# Descrição: Retorna um status fixo para confirmar que o dispatcher e o roteador
+#            estão funcionando corretamente.
+# ==============================================================================
+
+- type: contract
+  id: "system.get_status"
+  returns:
+    ok: true
+    status: "All systems nominal."
+    timestamp: "{{ NOW() }}"

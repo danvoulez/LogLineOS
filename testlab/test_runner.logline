@@ -1,0 +1,62 @@
+- type: contract
+  id: "testlab.run_all_tests"
+  trigger: { type: "kernel_action", on: "run_tests" }
+  actions:
+    - type: syscall.system.list_files
+      path: "./"
+      recursive: true
+      pattern: "*.test.logline"
+      output: "test_files"
+      on_failure:
+        - type: log
+          message: "Falha ao listar arquivos de teste."
+        - type: exit_contract
+    - type: loop
+      for: "{{ test_files }}"
+      as: "test_file_path"
+      body:
+        - type: syscall.file_read
+          path: "{{ test_file_path }}"
+          output: "test_suite_source"
+          on_failure:
+            - type: log
+              message: "Falha ao ler arquivo de teste: {{ test_file_path }}"
+            - type: continue
+        - type: loop
+          for: "{{ YAML_PARSE(test_suite_source) }}"
+          as: "test_case"
+          body:
+            - type: retry
+              attempts: 2
+              delay: 1
+              body:
+                - type: execute_contract
+                  id: "{{ test_case.contract }}"
+                  input: "{{ test_case.input }}"
+                  output: "actual_result"
+                  on_failure:
+                    - type: log
+                      message: "Falha ao executar contrato de teste: {{ test_case.contract }}"
+                    - type: continue
+                - type: syscall.assert
+                  actual: "{{ actual_result }}"
+                  expected: "{{ test_case.expect }}"
+                  output: "test_result"
+                  on_failure:
+                    - type: log
+                      message: "Falha na assertiva: {{ test_case.id }}"
+                - type: generate_span
+                  span:
+                    type: "test.result"
+                    payload:
+                      test_id: "{{ test_case.id }}"
+                      result: "{{ test_result }}"
+                - type: log
+                  message: "Teste executado: {{ test_case.id }} - Resultado: {{ test_result.passed }}"
+                - type: generate_span
+                  span:
+                    type: "test.audit"
+                    payload:
+                      test_id: "{{ test_case.id }}"
+                      input_hash: "{{ HASH(test_case.input) }}"
+                      env_hash: "{{ HASH(ENV()) }}"

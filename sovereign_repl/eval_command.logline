@@ -1,0 +1,37 @@
+- type: execution_rule
+  id: "rule.eval_console_commands"
+  when: { type: "console_affair", status: "input_received" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "evaluating" }
+    - type: generate_span
+      span:
+        type: "console.eval.attempt"
+        payload: { command: "{{ when.payload.command }}", span_id: "{{ when.id }}" }
+    - type: retry
+      attempts: 2
+      delay: 1
+      body:
+        - type: execute_contract
+          id: "llm_guardian.interpret_and_execute"
+          input: { goal: "{{ when.payload.command }}" }
+          output: "execution_result"
+          on_failure:
+            - type: log
+              message: "LLM execution falhou para comando: {{ when.payload.command }} - {{ ERROR() }}"
+            - type: execute_contract
+              id: "diagnostics.run"
+              input: { command: "{{ when.payload.command }}", error: "{{ ERROR() }}" }
+              output: "diagnostics_result"
+            - type: syscall.timeline.update_span
+              id: "{{ when.id }}"
+              update: { status: "failed", payload: { error: "{{ ERROR() }}", diagnostics: "{{ diagnostics_result }}" } }
+
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "completed", payload: { result: "{{ execution_result }}" } }
+    - type: generate_span
+      span:
+        type: "console.eval.completed"
+        payload: { command: "{{ when.payload.command }}", span_id: "{{ when.id }}", result: "{{ execution_result }}" }

@@ -1,0 +1,23 @@
+# ==============================================================================
+# Contrato: dispatch_to_ui.logline
+# Propósito: Entrega final de um span para a fila de execução do ui_runtime.
+# Descrição: Este contrato é o "efetor" que realiza a chamada de sistema
+#            assíncrona para despachar um span para o runtime de interface.
+# ==============================================================================
+- type: execution_rule
+  id: "rule.dispatch_approved_to_ui_runtime"
+  when:
+    - { type: "dispatch_affair", status: "policy_approved", payload.classification.target_runtime: "ui_runtime" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "dispatching_to_ui" }
+
+    # O dispatch para a UI pode ser via WebSocket, ponte de memória compartilhada, etc.
+    # A abstração da syscall oculta essa complexidade.
+    - type: syscall.runtime.dispatch
+      target: "ui_runtime"
+      span: "{{ when.payload.original_span }}"
+      context:
+        dispatch_affair_id: "{{ when.id }}"
+        trace_id: "{{ when.trace_id }}"

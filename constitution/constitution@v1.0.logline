@@ -1,0 +1,15 @@
+- type: institution.constitution
+  id: "constitution@v1.0"
+  clauses:
+    - id: "clause_001"
+      name: "Proibição de Comandos Destrutivos Irreversíveis"
+      rule: "span.type != 'system.format_disk'"
+    - id: "clause_002"
+      name: "Rastreabilidade do LLM"
+      rule: "span.type == 'syscall.llm.invoke' IMPLIES span.context.trace_id != null"
+    - id: "clause_003"
+      name: "Assinatura para Execução de WASM"
+      rule: "span.type == 'syscall.wasm_exec' IMPLIES span.payload.signature.is_valid == true"
+    - id: "clause_004"
+      name: "Acesso a Dados Apenas por Tenant"
+      rule: "span.type == 'syscall.postgres.query' IMPLIES span.payload.query.contains('WHERE tenant_id =')"

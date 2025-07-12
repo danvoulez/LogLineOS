@@ -1,0 +1,17 @@
+- type: contract
+  id: "state.query"
+  input: { name: "key", type: "string" }
+  actions:
+    - type: log
+      message: "Consulta ao estado: {{ input.key }}"
+    - type: syscall.keyvalue.get
+      key: "{{ input.key }}"
+      output: "value"
+      on_failure:
+        - type: generate_span
+          span:
+            type: "state.query.failed"
+            payload: { key: "{{ input.key }}", error: "{{ ERROR() }}", timestamp: "{{ NOW() }}" }
+        - type: log
+          message: "Falha ao consultar chave: {{ input.key }} - {{ ERROR() }}"
+  returns: "{{ value }}"

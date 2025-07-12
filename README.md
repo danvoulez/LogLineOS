@@ -245,6 +245,8 @@ Additional documentation can be found in the `docs/` directory:
 * [`docs/ENGINE_OPTIONS.md`](docs/ENGINE_OPTIONS.md) and [`docs/OTHER_MOTORS.md`](docs/OTHER_MOTORS.md) – further runtime ideas.
 * [`docs/ALT_ARCHITECTURES.md`](docs/ALT_ARCHITECTURES.md) – additional kernel designs.
 * [`docs/KERNELIZATION.md`](docs/KERNELIZATION.md) – using the new WASM syscalls.
+* [`CHANGELOG.md`](CHANGELOG.md) – latest release notes for LogLineOS.
+* [`docs/V3_OVERVIEW.md`](docs/V3_OVERVIEW.md) – overview of the new v3 modules.
 Example workflow files are described in [`docs/EXAMPLES.md`](docs/EXAMPLES.md).
 
 ## Kernelization Example
@@ -255,4 +257,11 @@ Try the `kernelization_test.logline` contract to compile and run a WASM module:
 go build
 ./motorcodex examples/kernelization_test.logline
 ```
+
+## Version 3 Modules
+
+The `PATCH/` folder introduced several new modules such as the API gateway,
+timeline state builder, LLM guardian and a sovereign REPL. They can now be found
+under directories like `api_gateway/`, `state_builder/`, `llm_guardian/` and
+`sovereign_repl/`.
 

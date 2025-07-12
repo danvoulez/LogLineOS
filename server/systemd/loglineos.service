@@ -1,0 +1,15 @@
+[Unit]
+Description=LogLineOS Declarative Operating System [Genesis]
+After=network.target
+
+[Service]
+Type=simple
+User=logline
+Group=logline
+WorkingDirectory=/opt/loglineos
+ExecStart=/usr/local/bin/logline run /opt/loglineos/server/server_entry.logline
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

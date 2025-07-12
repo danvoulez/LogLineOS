@@ -1,0 +1,5 @@
+# Chaves de API Válidas (uma por linha)
+# Formato: tenant_id:key_secret
+tenant-001:key_secret_alpha_7_beta_zeta
+tenant-002:key_secret_gamma_9_delta_phi
+support-team:key_secret_support_internal_omega

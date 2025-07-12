@@ -1,0 +1,65 @@
+- type: contract
+  id: "state.rebuild_full"
+  description: "Apaga e reconstrói o estado derivado completo a partir da timeline."
+  trigger: { type: "kernel_action", on: "state_rebuild_request" }
+  actions:
+    - type: conditional
+      if: "{{ NOW().time < MANIFEST('state_builder/state_manifest.yml').maintenance_window.start || NOW().time > MANIFEST('state_builder/state_manifest.yml').maintenance_window.end }}"
+      then:
+        - type: log
+          message: "Reconstrução de estado solicitada fora da janela de manutenção"
+        - type: generate_span
+          span:
+            type: "state.rebuild.skipped"
+            payload: { reason: "Fora da janela de manutenção", requested_at: "{{ NOW() }}" }
+        - type: exit_contract
+
+    - type: syscall.timeline.create_span
+      span: { type: "state_rebuild_affair", status: "started", payload: { requested_at: "{{ NOW() }}" } }
+      output: "rebuild_affair"
+
+    - type: syscall.filebackup.create
+      path: "state.bin"
+      output: "backup_status"
+      on_failure: "LOG('Falha ao criar backup do estado materializado.')"
+
+    - type: log
+      message: "Backup do estado realizado: {{ backup_status }}"
+
+    - type: retry
+      attempts: 3
+      delay: 2
+      body:
+        - type: execute_contract
+          id: "state.flush"
+          on_failure: "FAIL_AFFAIR('{{ rebuild_affair.id }}', 'Falha ao limpar estado antigo.')"
+
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type.in: "{{ MANIFEST('state_builder/state_manifest.yml').tracked_types }}" }, order_by: "created_at ASC" }
+      output: "history_spans"
+
+    - type: log
+      message: "Reconstrução do estado iniciada com {{ COUNT(history_spans) }} spans históricos."
+
+    - type: loop
+      for: "{{ history_spans }}"
+      as: "historical_span"
+      body:
+        - type: retry
+          attempts: 3
+          delay: 1
+          body:
+            - type: kernel_action
+              action: "trigger_rule_for_span"
+              payload: { span: "{{ historical_span }}" }
+
+    - type: syscall.timeline.update_span
+      id: "{{ rebuild_affair.id }}"
+      update: { status: "completed", completed_at: "{{ NOW() }}" }
+    - type: generate_span
+      span:
+        type: "state.rebuild.completed"
+        payload: { affair_id: "{{ rebuild_affair.id }}", rebuilt_at: "{{ NOW() }}" }
+    - type: log
+      message: "Reconstrução de estado finalizada em {{ NOW() }}"

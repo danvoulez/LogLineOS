@@ -1,0 +1,28 @@
+- type: contract
+  id: "docs.generate_all"
+  trigger: { type: "schedule", cron: "0 2 * * *" } # Roda todo dia às 2 da manhã
+  actions:
+    - type: syscall.system.list_files
+      path: "./"
+      recursive: true
+      pattern: "*.logline"
+      output: "contract_files"
+
+    - type: loop
+      for: "{{ contract_files }}"
+      as: "contract_path"
+      body:
+        - type: syscall.file_read
+          path: "{{ contract_path }}"
+          output: "contract_source"
+        - type: llm
+          goal: |
+            Você é um engenheiro de documentação técnica. Analise este contrato LogLine e gere uma documentação clara em Markdown. Inclua: ID, descrição, parâmetros de entrada/saída e um exemplo de uso.
+            Contrato:
+            ```logline
+            {{ contract_source }}
+            ```
+          output: "doc_markdown"
+        - type: syscall.file_write
+          path: "docs/generated/{{ REPLACE(contract_path, '/', '_') }}.md"
+          content: "{{ doc_markdown }}"

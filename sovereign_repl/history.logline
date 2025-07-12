@@ -1,0 +1,24 @@
+- type: execution_rule
+  id: "rule.handle_history_command"
+  when: { type: "console_affair", status: "evaluating", payload.command: "history" }
+  then:
+    - type: log
+      message: "Comando 'history' solicitado."
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type: "console_affair" }, order_by: "created_at DESC", limit: 20 }
+      output: "history_spans"
+      on_failure:
+        - type: syscall.timeline.update_span
+          id: "{{ when.id }}"
+          update: { status: "failed", payload: { error: "{{ ERROR() }}" } }
+        - type: log
+          message: "Falha ao obter histórico do REPL: {{ ERROR() }}"
+        - type: exit_rule
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "completed", payload: { result: "{{ history_spans }}" } }
+    - type: generate_span
+      span:
+        type: "console.history.displayed"
+        payload: { span_id: "{{ when.id }}", history_count: "{{ COUNT(history_spans) }}" }

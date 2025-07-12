@@ -1,0 +1,240 @@
+manifest_version: "1.1"
+tracked_types:
+  - "user.profile.created"
+  - "user.profile.updated"
+  - "contract.signed"
+  - "transaction.completed"
+  - "permission.granted"
+  - "permission.revoked"
+validation:
+  require_user_id: true
+  require_contract_id: true
+error_strategy: "log_and_continue"
+persistence_engine: "syscall.keyvalue"
+backup_engine: "syscall.filebackup"
+audit_enabled: true
+backup_frequency_minutes: 60
+allowed_value_schema:
+  user.profile.created: { user_id: "string", profile_data: "object" }
+  contract.signed: { contract_id: "string", user_id: "string" }
+maintenance_window:
+  start: "03:00"
+  end: "05:00"
+```
+
+```logline name=state_builder/apply_span.logline
+- type: execution_rule
+  id: "rule.apply_state_changing_spans"
+  description: "Aplica spans relevantes ao estado derivado assim que ocorrem."
+  when: { type.in: "{{ MANIFEST('state_builder/state_manifest.yml').tracked_types }}" }
+  then:
+    - type: generate_span
+      span:
+        type: "state.update.attempt"
+        payload: { attempted_span_id: "{{ when.id }}", attempted_type: "{{ when.type }}", attempted_payload: "{{ when.payload }}" }
+
+    - type: conditional
+      if: "{{ when.payload.user_id == null }}"
+      then:
+        - type: generate_span
+          span:
+            type: "state.update.failed"
+            payload: { span_id: "{{ when.id }}", reason: "user_id ausente" }
+        - type: log
+          message: "Validação falhou: user_id ausente em {{ when.type }}"
+        - type: exit_rule
+
+    - type: switch
+      on: "{{ when.type }}"
+      cases:
+        - case: "user.profile.created"
+          - type: retry
+            attempts: 3
+            delay: 1
+            body:
+              - type: syscall.keyvalue.set
+                key: "user:{{ when.payload.user_id }}:profile"
+                value: "{{ when.payload.profile_data }}"
+                on_failure:
+                  - type: generate_span
+                    span:
+                      type: "state.kv.failed"
+                      payload: { key: "user:{{ when.payload.user_id }}:profile", span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+                  - type: log
+                    message: "KV set falhou para user.profile.created: {{ ERROR() }}"
+        - case: "contract.signed"
+          - type: retry
+            attempts: 3
+            delay: 1
+            body:
+              - type: syscall.keyvalue.set
+                key: "contract:{{ when.payload.contract_id }}:status"
+                value: "signed"
+                on_failure:
+                  - type: generate_span
+                    span:
+                      type: "state.kv.failed"
+                      payload: { key: "contract:{{ when.payload.contract_id }}:status", span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+                  - type: log
+                    message: "KV set falhou para contract.signed: {{ ERROR() }}"
+              - type: syscall.keyvalue.set
+                key: "user:{{ when.payload.user_id }}:contracts"
+                action: "list_append"
+                value: "{{ when.payload.contract_id }}"
+                on_failure:
+                  - type: log
+                    message: "List append falhou para contract.signed: {{ ERROR() }}"
+        - case: "permission.revoked"
+          - type: retry
+            attempts: 3
+            delay: 1
+            body:
+              - type: syscall.keyvalue.delete
+                key: "user:{{ when.payload.user_id }}:permission:{{ when.payload.permission_name }}"
+                on_failure:
+                  - type: generate_span
+                    span:
+                      type: "state.kv.failed"
+                      payload: { key: "user:{{ when.payload.user_id }}:permission:{{ when.payload.permission_name }}", span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+                  - type: log
+                    message: "KV delete falhou para permission.revoked: {{ ERROR() }}"
+    - type: generate_span
+      span:
+        type: "state.updated"
+        payload: { applied_span_id: "{{ when.id }}" }
+    - type: log
+      message: "Estado atualizado para span {{ when.id }} do tipo {{ when.type }}"
+```
+
+```logline name=state_builder/rebuild_state.logline
+- type: contract
+  id: "state.rebuild_full"
+  description: "Apaga e reconstrói o estado derivado completo a partir da timeline."
+  trigger: { type: "kernel_action", on: "state_rebuild_request" }
+  actions:
+    - type: conditional
+      if: "{{ NOW().time < MANIFEST('state_builder/state_manifest.yml').maintenance_window.start || NOW().time > MANIFEST('state_builder/state_manifest.yml').maintenance_window.end }}"
+      then:
+        - type: log
+          message: "Reconstrução de estado solicitada fora da janela de manutenção"
+        - type: generate_span
+          span:
+            type: "state.rebuild.skipped"
+            payload: { reason: "Fora da janela de manutenção", requested_at: "{{ NOW() }}" }
+        - type: exit_contract
+
+    - type: syscall.timeline.create_span
+      span: { type: "state_rebuild_affair", status: "started", payload: { requested_at: "{{ NOW() }}" } }
+      output: "rebuild_affair"
+
+    - type: syscall.filebackup.create
+      path: "state.bin"
+      output: "backup_status"
+      on_failure: "LOG('Falha ao criar backup do estado materializado.')"
+
+    - type: log
+      message: "Backup do estado realizado: {{ backup_status }}"
+
+    - type: retry
+      attempts: 3
+      delay: 2
+      body:
+        - type: execute_contract
+          id: "state.flush"
+          on_failure: "FAIL_AFFAIR('{{ rebuild_affair.id }}', 'Falha ao limpar estado antigo.')"
+
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type.in: "{{ MANIFEST('state_builder/state_manifest.yml').tracked_types }}" }, order_by: "created_at ASC" }
+      output: "history_spans"
+
+    - type: log
+      message: "Reconstrução do estado iniciada com {{ COUNT(history_spans) }} spans históricos."
+
+    - type: loop
+      for: "{{ history_spans }}"
+      as: "historical_span"
+      body:
+        - type: retry
+          attempts: 3
+          delay: 1
+          body:
+            - type: kernel_action
+              action: "trigger_rule_for_span"
+              payload: { span: "{{ historical_span }}" }
+
+    - type: syscall.timeline.update_span
+      id: "{{ rebuild_affair.id }}"
+      update: { status: "completed", completed_at: "{{ NOW() }}" }
+    - type: generate_span
+      span:
+        type: "state.rebuild.completed"
+        payload: { affair_id: "{{ rebuild_affair.id }}", rebuilt_at: "{{ NOW() }}" }
+    - type: log
+      message: "Reconstrução de estado finalizada em {{ NOW() }}"
+```
+
+```logline name=state_builder/query_state.logline
+- type: contract
+  id: "state.query"
+  input: { name: "key", type: "string" }
+  actions:
+    - type: log
+      message: "Consulta ao estado: {{ input.key }}"
+    - type: syscall.keyvalue.get
+      key: "{{ input.key }}"
+      output: "value"
+      on_failure:
+        - type: generate_span
+          span:
+            type: "state.query.failed"
+            payload: { key: "{{ input.key }}", error: "{{ ERROR() }}", timestamp: "{{ NOW() }}" }
+        - type: log
+          message: "Falha ao consultar chave: {{ input.key }} - {{ ERROR() }}"
+  returns: "{{ value }}"
+```
+
+```logline name=state_builder/flush_state.logline
+- type: contract
+  id: "state.flush"
+  actions:
+    - type: log
+      message: "Flush do estado derivado solicitado."
+    - type: syscall.filebackup.create
+      path: "state.bin"
+      output: "backup_status"
+      on_failure: "LOG('Falha ao criar backup antes do flush.')"
+    - type: log
+      message: "Backup do estado realizado antes do flush: {{ backup_status }}"
+    - type: syscall.keyvalue.flush_all
+      on_failure:
+        - type: generate_span
+          span:
+            type: "state.flush.failed"
+            status: "failed"
+            payload: { error: "{{ ERROR() }}", timestamp: "{{ NOW() }}" }
+        - type: log
+          message: "Falha ao limpar o estado derivado: {{ ERROR() }}"
+        - type: exit_contract
+    - type: generate_span
+      span:
+        type: "state.flushed"
+        status: "completed"
+        payload: { timestamp: "{{ NOW() }}" }
+    - type: log
+      message: "Flush do estado derivado realizado com sucesso."
+```
+
+````markdown name=sovereign_repl/commands_index.md
+# Índice de Comandos do Sovereign REPL
+
+Comandos suportados:
+- `history`: Mostra os últimos comandos executados.
+- `help`: Lista comandos disponíveis.
+- `state.query <key>`: Consulta valor do estado derivado.
+- `state.rebuild_full`: Reconstrói o estado derivado do sistema.
+- `embedmind.search <query>`: Busca semântica vetorial.
+- `report.errors`: Mostra os últimos erros do sistema.
+- `diagnostics`: Executa diagnóstico de integridade dos módulos.
+- `selfheal`: Tenta recuperar serviços essenciais em caso de falha.
+- `exit`: Encerra o REPL.

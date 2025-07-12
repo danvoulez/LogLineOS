@@ -1,0 +1,22 @@
+- type: execution_rule
+  id: "rule.log_backup_attempt"
+  when: { type: "syscall.filebackup.create" }
+  then:
+    - type: generate_span
+      span:
+        type: "state.backup.attempt"
+        payload: { path: "{{ when.payload.path }}", status: "{{ when.status }}", timestamp: "{{ NOW() }}", size_bytes: "{{ when.payload.size_bytes | default: 0 }}", duration_ms: "{{ when.payload.duration_ms | default: 0 }}" }
+    - type: log
+      message: "Backup attempt for {{ when.payload.path }} with status {{ when.status }} (size: {{ when.payload.size_bytes | default: 'unknown' }} bytes, duration: {{ when.payload.duration_ms | default: 'unknown' }} ms)"
+    - type: conditional
+      if: "{{ when.status != 'success' }}"
+      then:
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "Backup failure for {{ when.payload.path }} at {{ NOW() }}. Status: {{ when.status }}. Please investigate."
+        - type: syscall.file_append
+          path: "state_builder/backup_errors.jsonl"
+          content: "{{ JSON_STRINGIFY(when.payload) }}"
+    - type: syscall.file_append
+      path: "state_builder/backup_log.jsonl"
+      content: "{{ JSON_STRINGIFY({ timestamp: NOW(), path: when.payload.path, status: when.status, size_bytes: when.payload.size_bytes, duration_ms: when.payload.duration_ms }) }}"

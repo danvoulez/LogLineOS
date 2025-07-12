@@ -1,0 +1,145 @@
+engine: "wasm"
+wasm_file: "embedmind/engines/embedding_model.wasm"
+output_path: "vectors/vectors.faiss"
+vector_size: 384
+normalize: true
+model_version: "2025-07"
+fallback: "openai"
+error_strategy: "log_and_continue"
+```
+
+```wasm name=embedmind/engines/embedding_model.wasm
+<binary placeholder - inserir modelo de embedding compilado para WASM>
+```
+
+```logline name=embedmind/embed_span.logline
+- type: execution_rule
+  id: "rule.generate_embedding_for_spans"
+  when: { type.in: ["api_affair.completed", "goal_affair.completed", "constitution.violation"] }
+  then:
+    # Prepara o texto para o embedding
+    - type: template_render
+      template: "Tipo: {{ when.type }}. Status: {{ when.status }}. Payload: {{ JSON_STRINGIFY(when.payload) }}"
+      output: "text_to_embed"
+    # Chama o motor WASM para gerar o vetor
+    - type: retry
+      attempts: 2
+      delay: 1
+      body:
+        - type: syscall.wasm_exec
+          module: "{{ MANIFEST('embedmind/embedding_manifest.yml').wasm_file }}"
+          function: "embed"
+          input: ["{{ text_to_embed }}"]
+          output: "vector"
+          on_failure:
+            - type: generate_span
+              span:
+                type: "embedmind.embedding.failed"
+                payload: { span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+            - type: log
+              message: "Embedding falhou para span {{ when.id }}: {{ ERROR() }}"
+            - type: exit_rule
+        - type: syscall.vector.add
+          index: "main_index"
+          items: [{ id: "{{ when.id }}", vector: "{{ vector }}" }]
+          on_failure:
+            - type: generate_span
+              span:
+                type: "embedmind.vector.failed"
+                payload: { span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+            - type: log
+              message: "Vector add falhou para span {{ when.id }}: {{ ERROR() }}"
+```
+
+```logline name=embedmind/search_vector.logline
+- type: contract
+  id: "embedmind.search"
+  input: { query: "string", top_k: "int" }
+  actions:
+    - type: retry
+      attempts: 2
+      delay: 1
+      body:
+        - type: syscall.wasm_exec
+          module: "{{ MANIFEST('embedmind/embedding_manifest.yml').wasm_file }}"
+          function: "embed"
+          input: ["{{ input.query }}"]
+          output: "query_vector"
+          on_failure:
+            - type: syscall.llm.invoke
+              provider: "openai"
+              prompt: "Embed this text for semantic search: {{ input.query }}"
+              output: "query_vector"
+            - type: log
+              message: "Fallback to OpenAI embedding for query."
+        - type: syscall.vector.search
+          index: "main_index"
+          query_vector: "{{ query_vector }}"
+          top_k: "{{ input.top_k | default: 5 }}"
+          output: "search_results"
+          on_failure:
+            - type: log
+              message: "Vector search failed for query: {{ input.query }}"
+            - type: exit_contract
+  returns: "{{ search_results }}"
+```
+
+```logline name=embedmind/index_contracts.logline
+- type: contract
+  id: "embedmind.index_contracts"
+  actions:
+    - type: syscall.system.list_files
+      path: "./"
+      recursive: true
+      pattern: "*.logline"
+      output: "contract_files"
+      on_failure:
+        - type: log
+          message: "Não foi possível listar arquivos para indexação."
+        - type: exit_contract
+    - type: loop
+      for: "{{ contract_files }}"
+      as: "contract_path"
+      body:
+        - type: retry
+          attempts: 2
+          delay: 1
+          body:
+            - type: syscall.file_read
+              path: "{{ contract_path }}"
+              output: "contract_source"
+              on_failure:
+                - type: log
+                  message: "Falha ao ler contrato: {{ contract_path }}"
+                - type: continue
+            - type: syscall.wasm_exec
+              module: "{{ MANIFEST('embedmind/embedding_manifest.yml').wasm_file }}"
+              function: "embed"
+              input: ["{{ contract_source }}"]
+              output: "vector"
+              on_failure:
+                - type: log
+                  message: "Falha ao gerar embedding para: {{ contract_path }}"
+                - type: continue
+            - type: syscall.vector.add
+              index: "contract_index"
+              items: [{ id: "{{ contract_path }}", vector: "{{ vector }}" }]
+              on_failure:
+                - type: log
+                  message: "Falha ao indexar embedding para: {{ contract_path }}"
+```
+
+````markdown name=testlab/README.md
+# 🧪 Testlab - Garantia de Qualidade do LogLineOS
+
+Este módulo contém a suíte de testes declarativos para o LogLineOS. Em vez de scripts de teste, escrevemos contratos `.test.logline` que descrevem o comportamento esperado.
+
+- **Testes como Contratos**: Cada caso de teste é um contrato LogLine, permitindo que os testes sejam tão auditáveis quanto o código que testam.
+- **Execução Nativa**: O `test_runner` é um contrato que executa outros contratos de teste, usando as mesmas primitivas do sistema.
+- **Assertivas Declarativas**: As expectativas são definidas com a cláusula `expect`, que compara o resultado real com o esperado.
+
+## Resiliência Adicional
+
+- Testes podem ser reexecutados automaticamente em caso de falha transitória.
+- Logs de erro detalhados são gerados para cada assertiva que falha.
+- Auditoria total: cada execução de teste gera um span com um hash do ambiente e do input.

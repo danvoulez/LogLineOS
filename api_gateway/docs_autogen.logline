@@ -1,0 +1,13 @@
+# Gera documentação analisando os contratos de roteamento.
+- type: contract
+  id: "gateway.docs_autogen"
+  actions:
+    - type: syscall.file_read
+      path: "api_gateway/route_request.logline"
+      output: "routing_contract_source"
+    # Um LLM ou um parser dedicado analisaria o contrato para extrair as rotas.
+    - type: llm
+      goal: "Analisar este contrato LogLine e extrair todas as rotas de API (cases do switch) e seus parâmetros esperados. Formatar como Markdown."
+      input: "{{ routing_contract_source }}"
+      output: "docs_markdown"
+  returns: "{{ docs_markdown }}"

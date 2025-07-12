@@ -1,0 +1,64 @@
+# ==============================================================================
+# Contrato: rules.logline
+# Propósito: O cérebro reativo que governa a State Machine de um "api_affair".
+# Descrição: Define as transições de estado válidas para uma requisição, desde
+#            a criação até a resposta final.
+# ==============================================================================
+
+# Regra 1: Autenticar "Assuntos" recém-criados.
+- type: execution_rule
+  id: "rule.authenticate_new_affairs"
+  when: { type: "api_affair", status: "created" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "authenticating" }
+    - type: execute_contract
+      id: "gateway.validate_token"
+      input: { affair_span: "{{ when }}" }
+
+# Regra 2: Aplicar política de throttle em "Assuntos" autenticados.
+- type: execution_rule
+  id: "rule.throttle_authenticated_affairs"
+  when: { type: "api_affair", status: "authenticated" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "throttling" }
+    - type: execute_contract
+      id: "gateway.throttle_policy"
+      input: { affair_span: "{{ when }}" }
+
+# Regra 3: Rotear "Assuntos" autorizados.
+- type: execution_rule
+  id: "rule.route_authorized_affairs"
+  when: { type: "api_affair", status: "authorized" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "routing" }
+    - type: execute_contract
+      id: "gateway.route_request"
+      input: { affair_span: "{{ when }}" }
+
+# Regra 4: Responder em caso de sucesso.
+- type: execution_rule
+  id: "rule.finalize_completed_affairs"
+  when: { type: "api_affair", status: "completed" }
+  then:
+    - type: syscall.http_respond
+      request_id: "{{ when.payload.kernel_request_id }}"
+      status: 200
+      headers: { "Content-Type": "application/json" }
+      body: "{{ JSON_STRINGIFY(when.payload.result) }}"
+
+# Regra 5: Responder em caso de falha.
+- type: execution_rule
+  id: "rule.handle_failed_affairs"
+  when: { type: "api_affair", status: "failed" }
+  then:
+    - type: syscall.http_respond
+      request_id: "{{ when.payload.kernel_request_id }}"
+      status: "{{ when.payload.error.http_code | default: 500 }}"
+      headers: { "Content-Type": "application/json" }
+      body: "{{ JSON_STRINGIFY({ error: when.payload.error.message }) }}"
