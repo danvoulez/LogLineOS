@@ -1,0 +1,57 @@
+# ==============================================================================
+# Contrato: runtime_policies.logline
+# Propósito: Aplicação de políticas de governança, segurança e prioridade.
+# Descrição: Age como um conselho de governança, validando se um despacho
+#            classificado pode prosseguir e com que prioridade.
+# ==============================================================================
+
+- type: execution_rule
+  id: "rule.apply_policies_to_classified_affairs"
+  when: { type: "dispatch_affair", status: "classified" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "evaluating_policy" }
+
+    # Política 1: Negação por Segurança (Exemplo)
+    - type: conditional
+      if: |
+        {{ when.payload.original_span.type == 'syscall.system.service_restart' }} AND
+        {{ when.payload.original_span.context.tenant_id != 'support-team' }}
+      then:
+        - type: syscall.timeline.update_span
+          id: "{{ when.id }}"
+          update:
+            status: "failed"
+            payload.error:
+              message: "Dispatch denied by security policy: Only 'support-team' tenant can restart services."
+              policy_source: "policy.sec.001.service_restart"
+        - type: exit_contract
+
+    # Política 2: Override de Prioridade
+    - type: conditional
+      if: "{{ when.payload.original_span.context.tenant_id == 'support-team' }}"
+      then:
+        - type: set_variable
+          name: "dispatch_priority"
+          value: "critical"
+        - type: set_variable
+          name: "policy_source_priority"
+          value: "policy.qos.001.support_team_priority"
+      else:
+        - type: set_variable
+          name: "dispatch_priority"
+          value: "normal"
+        - type: set_variable
+          name: "policy_source_priority"
+          value: "policy.qos.default"
+
+    # Decisão Final: Aprova o despacho com os metadados da política.
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update:
+        status: "policy_approved"
+        payload.policy:
+          decision: "approved"
+          priority: "{{ dispatch_priority }}"
+          source: "{{ policy_source_priority }}"

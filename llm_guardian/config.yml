@@ -1,0 +1,7 @@
+llm:
+  provider: "openai"
+  model: "gpt-4o"
+  temperature: 0.1
+  max_tokens: 1024
+  endpoint: "https://api.openai.com/v1/chat/completions"
+  api_key: "ENV:OPENAI_API_KEY"

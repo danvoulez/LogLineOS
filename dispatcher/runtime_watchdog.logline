@@ -1,0 +1,60 @@
+# ==============================================================================
+# Contrato: runtime_watchdog.logline
+# Propósito: Supervisor contínuo da saúde dos runtimes.
+# Descrição: Age como o sistema imunológico, monitorando a saúde dos runtimes,
+#            publicando seu status e acionando recuperação em caso de falha.
+# ==============================================================================
+
+- type: contract
+  id: "dispatcher.watchdog.start"
+  trigger: { type: "system.boot" }
+  actions:
+    - type: repeat
+      interval: "10s"
+      body:
+        - type: parallel
+          tasks:
+            - name: "healthcheck_core"
+              type: syscall.runtime.health_check
+              target: "core_runtime"
+              output: "core_status"
+              on_failure:
+                - type: set_variable
+                  name: "core_status"
+                  value: { status: 'unreachable', reason: "{{ ERROR() }}" }
+
+            - name: "healthcheck_ui"
+              type: syscall.runtime.health_check
+              target: "ui_runtime"
+              output: "ui_status"
+              on_failure:
+                - type: set_variable
+                  name: "ui_status"
+                  value: { status: 'unreachable', reason: "{{ ERROR() }}" }
+
+        # Atualiza os spans de status canônicos na timeline.
+        - type: syscall.timeline.update_many_spans
+          updates:
+            - id: "runtime_status:core"
+              type: "runtime_status"
+              payload: "{{ core_status }}"
+            - id: "runtime_status:ui"
+              type: "runtime_status"
+              payload: "{{ ui_status }}"
+
+        # Lógica de recuperação
+        - type: conditional
+          if: "{{ core_status.status == 'unreachable' }}"
+          then:
+            - type: generate_span
+              span: { type: "system_alert", level: "WARNING", message: "Core runtime inalcançável. Tentando reinício." }
+            - type: syscall.system.service_restart
+              service_name: "loglineos_core.service"
+
+        - type: conditional
+          if: "{{ ui_status.status == 'unreachable' }}"
+          then:
+            - type: generate_span
+              span: { type: "system_alert", level: "WARNING", message: "UI runtime inalcançável. Tentando reinício." }
+            - type: syscall.system.service_restart
+              service_name: "loglineos_ui.service"

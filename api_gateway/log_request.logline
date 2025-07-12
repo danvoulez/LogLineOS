@@ -1,0 +1,8 @@
+- type: contract
+  id: "gateway.log_request"
+  input: { name: "request", type: "json" }
+  actions:
+    # Escreve a requisição em um log separado para análise de tráfego.
+    - type: syscall.file_append
+      path: "/var/log/loglineos/api_traffic.jsonl"
+      content: "{{ JSON_STRINGIFY(input.request) }}"

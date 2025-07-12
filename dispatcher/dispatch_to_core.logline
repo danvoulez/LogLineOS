@@ -1,0 +1,24 @@
+# ==============================================================================
+# Contrato: dispatch_to_core.logline
+# Propósito: Entrega final de um span para a fila de execução do core_runtime.
+# Descrição: Este contrato é o "efetor" que realiza a chamada de sistema
+#            assíncrona para despachar um span para o runtime de lógica.
+# ==============================================================================
+- type: execution_rule
+  id: "rule.dispatch_approved_to_core_runtime"
+  when:
+    - { type: "dispatch_affair", status: "policy_approved", payload.classification.target_runtime: "core_runtime" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "dispatching_to_core" }
+
+    # A syscall 'runtime.dispatch' é assíncrona. Ela enfileira o span e retorna.
+    # O 'context' é crucial para que o runtime, ao responder, possa referenciar
+    # o "Assunto" de despacho original.
+    - type: syscall.runtime.dispatch
+      target: "core_runtime"
+      span: "{{ when.payload.original_span }}"
+      context:
+        dispatch_affair_id: "{{ when.id }}"
+        trace_id: "{{ when.trace_id }}"

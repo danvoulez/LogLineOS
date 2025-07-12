@@ -1,0 +1,76 @@
+# ==============================================================================
+# Contrato: dispatcher_test_suite.logline
+# Propósito: Suíte de testes declarativos para o Runtime Dispatcher.
+# Descrição: Garante a robustez e o comportamento esperado do dispatcher
+#            através de testes que são, eles mesmos, contratos auditáveis.
+# ==============================================================================
+
+- type: test_suite
+  id: "dispatcher.suite.v1"
+
+- type: test_case
+  id: "dispatcher.test.core_classification"
+  description: "Verifica se um span 'syscall.file_write' é corretamente classificado e aprovado."
+  steps:
+    - type: generate_span
+      span: { type: "syscall.file_write", payload: { path: "/tmp/test.txt" } }
+    - type: wait_for_span
+      query: { type: "dispatch_affair", payload.original_span.type: "syscall.file_write", status: "policy_approved" }
+      timeout: "5s"
+  expect:
+    - type: "span.exists"
+      query:
+        type: "dispatch_affair"
+        status: "policy_approved"
+        payload.classification.target_runtime: "core_runtime"
+
+- type: test_case
+  id: "dispatcher.test.ui_classification"
+  description: "Verifica se um span 'ui.button' é classificado e aprovado para a UI."
+  steps:
+    - type: generate_span
+      span: { type: "ui.button", payload: { label: "Click Me" } }
+    - type: wait_for_span
+      query: { type: "dispatch_affair", payload.original_span.type: "ui.button", status: "policy_approved" }
+  expect:
+    - type: "span.exists"
+      query:
+        type: "dispatch_affair"
+        status: "policy_approved"
+        payload.classification.target_runtime: "ui_runtime"
+
+- type: test_case
+  id: "dispatcher.test.runtime_failure_fallback"
+  description: "Simula a queda do core_runtime e verifica se o fallback é acionado corretamente."
+  steps:
+    - type: syscall.runtime.set_status
+      target: "core_runtime"
+      status: "down"
+    - type: generate_span
+      span: { type: "commit" }
+    - type: wait_for_span
+      query: { type: "dispatch_affair", status: "policy_approved", payload.classification.target_runtime: "ui_runtime" }
+  expect:
+    - type: "span.exists"
+      query:
+        type: "dispatch_affair"
+        payload.fallback.from: "core_runtime"
+        payload.fallback.to: "ui_runtime"
+        payload.classification.original_target: "core_runtime"
+
+- type: test_case
+  id: "dispatcher.test.security_policy_denial"
+  description: "Verifica se um tenant não autorizado é bloqueado pela política de segurança."
+  steps:
+    - type: generate_span
+      span:
+        type: "syscall.system.service_restart"
+        context: { tenant_id: "random_tenant" }
+    - type: wait_for_span
+      query: { type: "dispatch_affair", payload.original_span.type: "syscall.system.service_restart", status: "failed" }
+  expect:
+    - type: "span.exists"
+      query:
+        type: "dispatch_affair"
+        status: "failed"
+        payload.error.policy_source: "policy.sec.001.service_restart"

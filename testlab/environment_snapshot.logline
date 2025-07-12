@@ -1,0 +1,23 @@
+- type: contract
+  id: "testlab.snapshot_environment"
+  actions:
+    - type: syscall.system.env_dump
+      output: "env_snapshot"
+    - type: syscall.file_write
+      path: "testlab/env_snapshots/{{ NOW() }}.json"
+      content: "{{ JSON_STRINGIFY(env_snapshot) }}"
+    - type: generate_span
+      span:
+        type: "test.environment.snapshot"
+        payload: { snapshot_path: "testlab/env_snapshots/{{ NOW() }}.json", env_hash: "{{ HASH(env_snapshot) }}", timestamp: "{{ NOW() }}" }
+    - type: log
+      message: "Environment snapshot saved for test run at {{ NOW() }}."
+    - type: syscall.system.uptime
+      output: "system_uptime"
+    - type: log
+      message: "System uptime at snapshot: {{ system_uptime }}"
+    - type: conditional
+      if: "{{ env_snapshot | contains: 'LOGLINE_TEST_MODE' }}"
+      then:
+        - type: log
+          message: "Test mode detected in environment."

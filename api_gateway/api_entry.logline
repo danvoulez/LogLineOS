@@ -1,0 +1,21 @@
+# ==============================================================================
+# Contrato: api_entry.logline
+# Propósito: Ponto de entrada universal para requisições HTTP.
+# Descrição: Recebe a chamada do kernel e a formaliza como um "Assunto de API",
+#            iniciando o ciclo de vida do processamento.
+# ==============================================================================
+
+- type: execution_rule
+  id: "rule.formalize_api_request_as_affair"
+  priority: 1000
+  description: "Transforma uma requisição HTTP crua em um 'Assunto' auditável."
+  when: { type: "kernel_action", on: "api_receive" }
+  then:
+    - type: syscall.timeline.create_span
+      span:
+        type: "api_affair"
+        status: "created"
+        trace_id: "{{ trigger.trace_id | default: GENERATE_UUID() }}"
+        payload:
+          request: "{{ trigger.payload }}"
+          kernel_request_id: "{{ trigger.request_id }}"

@@ -1,0 +1,42 @@
+# ==============================================================================
+# Contrato: config_loader.logline
+# Propósito: Carregar e mesclar configurações de arquivos e variáveis de ambiente.
+# ==============================================================================
+- type: contract
+  id: "config.load_system_config"
+  description: "Carrega todas as configurações de módulo, dando prioridade a variáveis de ambiente para segredos."
+  actions:
+    # Carrega as configurações base de cada módulo
+    - type: syscall.file.read_yaml
+      path: "server/config.yml"
+      output: "server_config"
+    - type: syscall.file.read_yaml
+      path: "timeline/config.yml"
+      output: "timeline_config"
+    - type: syscall.file.read_yaml
+      path: "llm_guardian/config.yml"
+      output: "llm_config"
+
+    # Carrega segredos das variáveis de ambiente
+    - type: syscall.env.get
+      key: "POSTGRES_PASSWORD"
+      output: "postgres_password"
+    - type: syscall.env.get
+      key: "OPENAI_API_KEY"
+      output: "openai_api_key"
+
+    # Mescla os segredos na configuração
+    - type: object.set_property
+      target: "{{ timeline_config.postgres }}"
+      property: "password"
+      value: "{{ postgres_password }}"
+    - type: object.set_property
+      target: "{{ llm_config.llm }}"
+      property: "api_key"
+      value: "{{ openai_api_key }}"
+
+    # Retorna o objeto de configuração global e unificado
+  returns:
+    server: "{{ server_config.server }}"
+    timeline: "{{ timeline_config.postgres }}"
+    llm: "{{ llm_config.llm }}"

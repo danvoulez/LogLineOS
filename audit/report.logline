@@ -1,0 +1,23 @@
+- type: contract
+  id: "audit.generate_weekly_report"
+  trigger: { type: "schedule", cron: "0 8 * * 1" } # Toda segunda-feira às 8h
+  actions:
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type: "%affair", status: "failed", created_at: "> NOW() - '7d'" } }
+      output: "failed_affairs"
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type: "constitution.violation", created_at: "> NOW() - '7d'" } }
+      output: "violations"
+
+    - type: llm
+      goal: "Crie um relatório executivo semanal em Markdown com base nos seguintes dados:"
+      input:
+        failed_affairs_count: "{{ COUNT(failed_affairs) }}"
+        violations_count: "{{ COUNT(violations) }}"
+      output: "report_content"
+
+    - type: syscall.notify
+      target: "management_dashboard"
+      message: "{{ report_content }}"

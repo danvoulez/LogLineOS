@@ -1,0 +1,73 @@
+# ==============================================================================
+# Contrato: runtime_dispatcher.logline
+# Propósito: Orquestração central de todos os spans executáveis.
+# Descrição: Este contrato é o ponto de entrada e saída para o ciclo de vida de
+#            um despacho. Ele formaliza intenções como "Assuntos de Despacho",
+#            inicia o pipeline de processamento e registra o resultado final.
+# ==============================================================================
+
+# Regra 1: Interceptar e Formalizar
+# Intercepta qualquer span que não seja um meta-span do próprio sistema e o
+# formaliza como um "Assunto de Despacho" (dispatch_affair).
+- type: execution_rule
+  id: "rule.intercept_and_formalize_span"
+  priority: 1000 # Alta prioridade para garantir que seja executado primeiro.
+  description: "Intercepta spans executáveis e inicia um 'Assunto de Despacho' para gerenciá-los."
+  when:
+    type.not_in:
+      - "dispatch_affair"
+      - "dispatch_result"
+      - "runtime_status"
+      - "system_alert"
+      - "audit.log"
+      - "heartbeat"
+      - "test.result"
+  then:
+    - type: syscall.timeline.create_span
+      span:
+        type: "dispatch_affair"
+        status: "created"
+        trace_id: "{{ when.trace_id | default: GENERATE_UUID() }}"
+        payload:
+          original_span: "{{ when }}"
+          origin:
+            source_contract: "{{ context.contract_id | default: 'unknown' }}"
+            initiator: "{{ context.user_id | default: 'system' }}"
+
+# Regra 2: Iniciar o Processamento
+# Aciona o primeiro passo (classificação) para um "Assunto" recém-criado.
+- type: execution_rule
+  id: "rule.process_created_dispatch_affairs"
+  when: { type: "dispatch_affair", status: "created" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "classifying" }
+    - type: execute_contract
+      id: "dispatcher.classify_span"
+      input: { affair_span: "{{ when }}" }
+
+# Regra 3: Finalizar o "Assunto"
+# Ouve o resultado da execução do runtime e fecha o ciclo de vida do "Assunto".
+- type: execution_rule
+  id: "rule.finalize_dispatch_affair"
+  description: "Recebe o resultado de uma execução de runtime e finaliza o 'Assunto' de despacho correspondente."
+  when: { type: "runtime.execution.result" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.context.dispatch_affair_id }}"
+      update:
+        status: "{{ when.status | replace('ok', 'completed') | replace('error', 'failed') }}"
+        payload.result: "{{ when.payload }}"
+        completed_at: "{{ NOW() }}"
+
+    # Gera o span final de resultado do despacho para auditoria e monitoramento.
+    - type: generate_span
+      span:
+        type: "dispatch_result"
+        trace_id: "{{ when.trace_id }}"
+        status: "{{ when.status }}"
+        payload:
+          affair_id: "{{ when.context.dispatch_affair_id }}"
+          routed_to: "{{ when.context.executed_on_runtime }}"
+          final_result: "{{ when.payload }}"

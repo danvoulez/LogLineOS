@@ -1,0 +1,24 @@
+- type: execution_rule
+  id: "rule.check_proposed_spans_against_constitution"
+  when: { type: "goal_affair", status: "evaluated" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "validating_constitutionality" }
+    - type: loop
+      for: "{{ when.payload.proposed_spans }}"
+      as: "proposed_span"
+      body:
+        - type: execute_contract
+          id: "constitution.enforce"
+          input: { span_to_check: "{{ proposed_span }}" }
+          output: "validation_result"
+        - type: list_append
+          target: "validated_spans"
+          value: "{{ validation_result }}" # O contrato 'enforce' retorna o span com um flag de 'valid' ou 'rejected'
+
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update:
+        status: "ready_for_execution"
+        payload.validated_spans: "{{ validated_spans }}"

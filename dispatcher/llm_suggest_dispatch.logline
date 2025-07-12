@@ -1,0 +1,50 @@
+# ==============================================================================
+# Contrato: llm_suggest_dispatch.logline
+# Propósito: Usa um LLM para sugerir o roteamento de spans não reconhecidos.
+# Descrição: Atua como um oráculo consultivo, integrando IA de forma segura
+#            e auditável para lidar com a ambiguidade.
+# ==============================================================================
+
+- type: execution_rule
+  id: "rule.llm_suggest_for_unknown_span_type"
+  when: { type: "dispatch_affair", status: "classification_pending_llm" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "consulting_llm_guardian" }
+
+    - type: syscall.llm.invoke
+      provider: "openai"
+      prompt: |
+        Você é um classificador de runtime do sistema operacional LogLineOS.
+        Sua tarefa é analisar o `type` e o `payload` do seguinte span JSON e determinar se sua intenção é primariamente lógica/de sistema ('core_runtime') ou visual/de interação ('ui_runtime').
+        Responda APENAS com a string 'core_runtime' ou 'ui_runtime'.
+
+        Span para análise:
+        {{ JSON_STRINGIFY(when.payload.original_span) }}
+      output: "llm_suggestion"
+      on_failure:
+        - type: syscall.timeline.update_span
+          id: "{{ when.id }}"
+          update: { status: "failed", payload.error: { message: "LLM Guardian consultation failed. {{ ERROR() }}" } }
+        - type: exit_contract
+
+    # Validação da resposta do LLM para evitar injeção de comportamento.
+    - type: conditional
+      if: "{{ llm_suggestion.in: ['core_runtime', 'ui_runtime'] }}"
+      then:
+        - type: syscall.timeline.update_span
+          id: "{{ when.id }}"
+          update:
+            status: "classified" # De volta ao fluxo principal
+            payload.classification:
+              target_runtime: "{{ llm_suggestion }}"
+              reason: "Suggested by LLM Guardian"
+              semantic_reasoning: true
+      else:
+        - type: syscall.timeline.update_span
+          id: "{{ when.id }}"
+          update:
+            status: "failed"
+            payload.error:
+              message: "LLM Guardian returned invalid suggestion: '{{ llm_suggestion }}'"

@@ -1,0 +1,28 @@
+- type: contract
+  id: "state.flush"
+  actions:
+    - type: log
+      message: "Flush do estado derivado solicitado."
+    - type: syscall.filebackup.create
+      path: "state.bin"
+      output: "backup_status"
+      on_failure: "LOG('Falha ao criar backup antes do flush.')"
+    - type: log
+      message: "Backup do estado realizado antes do flush: {{ backup_status }}"
+    - type: syscall.keyvalue.flush_all
+      on_failure:
+        - type: generate_span
+          span:
+            type: "state.flush.failed"
+            status: "failed"
+            payload: { error: "{{ ERROR() }}", timestamp: "{{ NOW() }}" }
+        - type: log
+          message: "Falha ao limpar o estado derivado: {{ ERROR() }}"
+        - type: exit_contract
+    - type: generate_span
+      span:
+        type: "state.flushed"
+        status: "completed"
+        payload: { timestamp: "{{ NOW() }}" }
+    - type: log
+      message: "Flush do estado derivado realizado com sucesso."

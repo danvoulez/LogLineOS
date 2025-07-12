@@ -1,0 +1,55 @@
+# ==============================================================================
+# Contrato: validate_token.logline
+# Propósito: Validação de token de autenticação.
+# Descrição: Verifica o cabeçalho 'Authorization' contra a lista de chaves
+#            válidas e atualiza o estado do "Assunto" para 'authenticated' ou 'failed'.
+# ==============================================================================
+
+- type: contract
+  id: "gateway.validate_token"
+  input: { name: "affair_span", type: "json" }
+  actions:
+    - type: string_split
+      input: "{{ input.affair_span.payload.request.headers.Authorization | default: '' }}"
+      separator: " "
+      output: "token_parts"
+    - type: select_item
+      from: "{{ token_parts }}"
+      index: 1
+      output: "clean_token"
+      on_failure:
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update: { status: "failed", payload.error: { message: "Formato de token inválido. Esperado 'Bearer <token>'", http_code: 401 } }
+        - type: exit_contract
+
+    - type: syscall.file_read
+      path: "api_gateway/api_keys.txt"
+      output: "api_keys_content"
+    - type: string_split
+      input: "{{ api_keys_content }}"
+      separator: "\n"
+      output: "valid_keys_list"
+
+    - type: find_in_list
+      list: "{{ valid_keys_list }}"
+      where: "item.endsWith(':' + clean_token)"
+      output: "found_entry"
+      on_failure:
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update: { status: "failed", payload.error: { message: "Token inválido ou não encontrado", http_code: 401 } }
+        - type: exit_contract
+
+    - type: string_split
+      input: "{{ found_entry }}"
+      separator: ":"
+      output: "entry_parts"
+
+    - type: syscall.timeline.update_span
+      id: "{{ input.affair_span.id }}"
+      update:
+        status: "authenticated"
+        payload.auth:
+          tenant_id: "{{ entry_parts[0] }}"
+          validated_at: "{{ NOW() }}"

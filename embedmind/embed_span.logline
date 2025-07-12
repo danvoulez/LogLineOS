@@ -1,0 +1,30 @@
+- type: execution_rule
+  id: "rule.generate_embedding_for_spans"
+  when: { type.in: ["api_affair.completed", "goal_affair.completed", "constitution.violation"] }
+  then:
+    - type: template_render
+      template: "Tipo: {{ when.type }}. Status: {{ when.status }}. Payload: {{ JSON_STRINGIFY(when.payload) }}"
+      output: "text_to_embed"
+    - type: retry
+      attempts: 2
+      delay: 1
+      body:
+        - type: syscall.wasm_exec
+          module: "{{ MANIFEST('embedmind/embedding_manifest.yml').wasm_file }}"
+          function: "embed"
+          input: ["{{ text_to_embed }}"]
+          output: "vector"
+          on_failure:
+            - type: generate_span
+              span:
+                type: "embedmind.embedding.failed"
+                payload: { span_id: "{{ when.id }}", error: "{{ ERROR() }}" }
+            - type: exit_rule
+        - type: syscall.vector.add
+          index: "main_index"
+          items: [{ id: "{{ when.id }}", vector: "{{ vector }}" }]
+          on_failure:
+            - type: generate_span
+              span:
+                type: "embedmind.vector.failed"
+                payload: { span_id: "{{ when.id }}", error: "{{ ERROR() }}" }

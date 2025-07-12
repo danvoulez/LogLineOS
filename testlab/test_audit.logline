@@ -1,0 +1,19 @@
+- type: execution_rule
+  id: "rule.audit_test_result"
+  when: { type: "test.result" }
+  then:
+    - type: syscall.file_append
+      path: "testlab/test_audit.jsonl"
+      content: "{{ JSON_STRINGIFY(when.payload) }}"
+    - type: log
+      message: "Test result audited for test_id: {{ when.payload.test_id }} (passed: {{ when.payload.result.passed }})"
+    - type: conditional
+      if: "{{ when.payload.result.passed == false }}"
+      then:
+        - type: syscall.notify
+          target: "qa_team"
+          message: "Test failed: {{ when.payload.test_id }}. See testlab/test_audit.jsonl for details."
+    - type: generate_span
+      span:
+        type: "test.audit.recorded"
+        payload: { test_id: "{{ when.payload.test_id }}", passed: "{{ when.payload.result.passed }}", timestamp: "{{ NOW() }}" }

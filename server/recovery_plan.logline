@@ -1,0 +1,18 @@
+# ==============================================================================
+# Contrato: recovery_plan.logline
+# Propósito: Plano de recuperação para falhas do processo principal.
+# Descrição: Acionado pelo systemd ou por um supervisor externo, este contrato
+#            define os passos para uma recuperação segura.
+# ==============================================================================
+
+- type: contract
+  id: "server.recovery_plan"
+  trigger: { type: "kernel_action", on: "system_recovery_request" }
+  actions:
+    - type: generate_span
+      span:
+        type: "system_alert"
+        level: "CRITICAL"
+        message: "Plano de recuperação do sistema acionado."
+    - type: syscall.system.service_restart
+      service_name: "loglineos.service"

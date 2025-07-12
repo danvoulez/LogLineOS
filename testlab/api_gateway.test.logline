@@ -1,0 +1,71 @@
+- type: test_case
+  id: "api_gateway.test.token_success"
+  description: "Verifica se um token válido resulta em um 'Assunto' autenticado."
+  contract: "gateway.validate_token"
+  input:
+    affair_span:
+      id: "test-affair-01"
+      payload:
+        request:
+          headers:
+            Authorization: "Bearer tenant-001:key_secret_alpha_7_beta_zeta"
+  expect:
+    - type: "span.updated"
+      span_id: "test-affair-01"
+      update:
+        status: "authenticated"
+        payload.auth.tenant_id: "tenant-001"
+
+- type: test_case
+  id: "api_gateway.test.token_failure"
+  description: "Verifica se um token inválido resulta em um 'Assunto' falhado."
+  contract: "gateway.validate_token"
+  input:
+    affair_span:
+      id: "test-affair-02"
+      payload:
+        request:
+          headers:
+            Authorization: "Bearer token_invalido"
+  expect:
+    - type: "span.updated"
+      span_id: "test-affair-02"
+      update:
+        status: "failed"
+        payload.error.http_code: 401
+
+- type: test_case
+  id: "api_gateway.test.token_malformed"
+  description: "Verifica se um header Authorization malformado resulta em falha."
+  contract: "gateway.validate_token"
+  input:
+    affair_span:
+      id: "test-affair-03"
+      payload:
+        request:
+          headers:
+            Authorization: "malformed"
+  expect:
+    - type: "span.updated"
+      span_id: "test-affair-03"
+      update:
+        status: "failed"
+        payload.error.http_code: 401
+
+- type: test_case
+  id: "api_gateway.test.audit_span"
+  description: "Verifica se uma alteração em contrato gera um span de auditoria."
+  contract: "audit.audit_entry"
+  input:
+    when:
+      payload:
+        path: "api_gateway/validate_token.logline"
+        diff: "changed validation logic"
+        context:
+          user_id: "danvoulez"
+  expect:
+    - type: "span.generated"
+      span_type: "audit.contract.changed"
+      payload.path: "api_gateway/validate_token.logline"
+      payload.author: "danvoulez"
+      payload.diff: "changed validation logic"

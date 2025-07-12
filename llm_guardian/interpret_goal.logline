@@ -1,0 +1,31 @@
+- type: execution_rule
+  id: "rule.interpret_received_goals"
+  when: { type: "goal_affair", status: "received" }
+  then:
+    - type: syscall.timeline.update_span
+      id: "{{ when.id }}"
+      update: { status: "interpreting" }
+    # Tenta resolver com lógica declarativa primeiro
+    - type: switch
+      on: "{{ when.payload.goal }}"
+      cases:
+        - case: "ativar a câmera do escritório"
+          - type: syscall.timeline.update_span
+            id: "{{ when.id }}"
+            update:
+              status: "evaluated"
+              payload.proposed_spans:
+                - { type: "iot.camera.on", params: { device_id: "cam-office-01" } }
+
+        - case: "trancar todas as portas"
+          - type: syscall.timeline.update_span
+            id: "{{ when.id }}"
+            update:
+              status: "evaluated"
+              payload.proposed_spans:
+                - { type: "iot.door.lock", params: { location: "all" } }
+      # Se nenhum caso bater, delega para o LLM
+      default:
+        - type: execute_contract
+          id: "llm_guardian.fallback_openai"
+          input: { affair_span: "{{ when }}" }

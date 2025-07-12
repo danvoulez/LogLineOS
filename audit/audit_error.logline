@@ -1,0 +1,19 @@
+- type: execution_rule
+  id: "rule.audit_error_tracker"
+  when: { type: "audit.contract.changed.failed" }
+  then:
+    - type: syscall.file_append
+      path: "audit/error_log.jsonl"
+      content: "{{ JSON_STRINGIFY(when.payload) }}"
+    - type: generate_span
+      span:
+        type: "audit.error.recorded"
+        payload: { error: "{{ when.payload }}", timestamp: "{{ NOW() }}" }
+    - type: log
+      message: "Audit record failed: {{ when.payload }}"
+    - type: conditional
+      if: "{{ when.payload | contains: 'disk full' }}"
+      then:
+        - type: syscall.notify
+          target: "admin_on_call"
+          message: "Audit error: disk full detected during contract change logging!"

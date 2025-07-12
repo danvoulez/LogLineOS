@@ -1,0 +1,18 @@
+- type: contract
+  id: "constitution.register_violation"
+  input: { violating_span: "json", violated_clause: "json" }
+  actions:
+    - type: generate_span
+      span:
+        type: "constitution.violation"
+        status: "recorded"
+        payload:
+          violated_clause_id: "{{ input.violated_clause.id }}"
+          offending_span_type: "{{ input.violating_span.type }}"
+          offending_trace_id: "{{ input.violating_span.context.trace_id }}"
+    - type: conditional
+      if: "{{ config.notify_on_violation == true }}"
+      then:
+        - type: syscall.notify
+          target: "security_team"
+          message: "Violação constitucional detectada! Cláusula: {{ input.violated_clause.id }}"

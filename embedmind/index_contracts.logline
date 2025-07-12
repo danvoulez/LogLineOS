@@ -1,0 +1,42 @@
+- type: contract
+  id: "embedmind.index_contracts"
+  actions:
+    - type: syscall.system.list_files
+      path: "./"
+      recursive: true
+      pattern: "*.logline"
+      output: "contract_files"
+      on_failure:
+        - type: log
+          message: "Não foi possível listar arquivos para indexação."
+        - type: exit_contract
+    - type: loop
+      for: "{{ contract_files }}"
+      as: "contract_path"
+      body:
+        - type: retry
+          attempts: 2
+          delay: 1
+          body:
+            - type: syscall.file_read
+              path: "{{ contract_path }}"
+              output: "contract_source"
+              on_failure:
+                - type: log
+                  message: "Falha ao ler contrato: {{ contract_path }}"
+                - type: continue
+            - type: syscall.wasm_exec
+              module: "{{ MANIFEST('embedmind/embedding_manifest.yml').wasm_file }}"
+              function: "embed"
+              input: ["{{ contract_source }}"]
+              output: "vector"
+              on_failure:
+                - type: log
+                  message: "Falha ao gerar embedding para: {{ contract_path }}"
+                - type: continue
+            - type: syscall.vector.add
+              index: "contract_index"
+              items: [{ id: "{{ contract_path }}", vector: "{{ vector }}" }]
+              on_failure:
+                - type: log
+                  message: "Falha ao indexar embedding para: {{ contract_path }}"

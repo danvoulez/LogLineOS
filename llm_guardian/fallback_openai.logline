@@ -1,0 +1,21 @@
+- type: contract
+  id: "llm_guardian.fallback_openai"
+  input: { name: "affair_span", type: "json" }
+  actions:
+    - type: syscall.llm.invoke
+      provider: "openai" # Usa config do módulo
+      prompt: |
+        Você é o LLM Guardian do LogLineOS. Sua tarefa é traduzir o seguinte objetivo em uma lista JSON de spans LogLine executáveis. Seja conciso e seguro.
+        Objetivo: {{ input.affair_span.payload.goal }}
+        Responda APENAS com o JSON.
+      output: "llm_response"
+      on_failure:
+        - type: syscall.timeline.update_span
+          id: "{{ input.affair_span.id }}"
+          update: { status: "failed", payload.error: "LLM provider failed" }
+
+    - type: syscall.timeline.update_span
+      id: "{{ input.affair_span.id }}"
+      update:
+        status: "evaluated"
+        payload.proposed_spans: "{{ JSON_PARSE(llm_response) }}"

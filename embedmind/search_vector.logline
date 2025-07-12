@@ -1,0 +1,30 @@
+- type: contract
+  id: "embedmind.search"
+  input: { query: "string", top_k: "int" }
+  actions:
+    - type: retry
+      attempts: 2
+      delay: 1
+      body:
+        - type: syscall.wasm_exec
+          module: "{{ MANIFEST('embedmind/embedding_manifest.yml').wasm_file }}"
+          function: "embed"
+          input: ["{{ input.query }}"]
+          output: "query_vector"
+          on_failure:
+            - type: syscall.llm.invoke
+              provider: "openai"
+              prompt: "Embed this text for semantic search: {{ input.query }}"
+              output: "query_vector"
+            - type: log
+              message: "Fallback to OpenAI embedding for query."
+        - type: syscall.vector.search
+          index: "main_index"
+          query_vector: "{{ query_vector }}"
+          top_k: "{{ input.top_k | default: 5 }}"
+          output: "search_results"
+          on_failure:
+            - type: log
+              message: "Vector search failed for query: {{ input.query }}"
+            - type: exit_contract
+  returns: "{{ search_results }}"

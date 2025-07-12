@@ -1,0 +1,24 @@
+- type: contract
+  id: "testlab.generate_coverage"
+  actions:
+    - type: execute_contract
+      id: "timeline.query"
+      input: { filters: { type: "test.result" } }
+      output: "test_results"
+      on_failure:
+        - type: log
+          message: "Falha ao buscar resultados de teste."
+        - type: exit_contract
+    - type: compute_coverage
+      input: "{{ test_results }}"
+      output: "coverage_stats"
+      on_failure:
+        - type: log
+          message: "Falha ao calcular cobertura."
+        - type: exit_contract
+    - type: syscall.file_write
+      path: "testlab/coverage_report.md"
+      content: "{{ coverage_stats }}"
+      on_failure:
+        - type: log
+          message: "Falha ao escrever relatório de cobertura."

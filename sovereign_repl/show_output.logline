@@ -1,0 +1,32 @@
+- type: execution_rule
+  id: "rule.show_repl_output"
+  when: { type.in: ["console_affair.completed", "console_affair.failed"] }
+  then:
+    - type: generate_span
+      span:
+        type: "console.output.attempt"
+        payload: { span_id: "{{ when.id }}", status: "{{ when.status }}", output: "{{ when.payload.result | when.payload.error }}" }
+    - type: conditional
+      if: "{{ when.status == 'completed' }}"
+      then:
+        - type: syscall.console.print
+          content: "{{ JSON_PRETTY_PRINT(when.payload.result) }}"
+          style: "green"
+          on_failure:
+            - type: generate_span
+              span:
+                type: "console.output.failed"
+                payload: { error: "{{ ERROR() }}", output: "{{ when.payload.result }}" }
+            - type: log
+              message: "Falha ao exibir resultado no REPL: {{ ERROR() }}"
+      else:
+        - type: syscall.console.print
+          content: "ERRO: {{ when.payload.error }}"
+          style: "red"
+          on_failure:
+            - type: generate_span
+              span:
+                type: "console.output.failed"
+                payload: { error: "{{ ERROR() }}", output: "{{ when.payload.error }}" }
+            - type: log
+              message: "Falha ao exibir erro no REPL: {{ ERROR() }}"

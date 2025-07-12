@@ -1,0 +1,34 @@
+# ==============================================================================
+# Contrato: fallback_if_runtime_down.logline
+# Propósito: Redirecionamento de 'Assuntos' quando o runtime de destino está offline.
+# Descrição: Implementa a resiliência do sistema, rerroteando despachos
+#            de forma declarativa e auditável em caso de falha.
+# ==============================================================================
+
+- type: execution_rule
+  id: "rule.fallback_from_core_to_ui"
+  description: "Se o core_runtime estiver offline, tenta despachar para o ui_runtime como contingência."
+  when:
+    # Gatilho composto: um despacho para o core + status do core como 'down'.
+    - { type: "dispatch_affair", status: "policy_approved", payload.classification.target_runtime: "core_runtime" }
+    - { type: "runtime_status", id: "runtime_status:core", payload.status.in: ["down", "unreachable"] }
+  then:
+    # Usa when(type=...) para desambiguar qual evento do gatilho usar.
+    - type: syscall.timeline.update_span
+      id: "{{ when(type='dispatch_affair').id }}"
+      update:
+        status: "fallback_initiated"
+        payload.fallback:
+          from: "core_runtime"
+          to: "ui_runtime"
+          reason: "Core runtime status is '{{ when(type='runtime_status').payload.status }}'."
+
+    # Em vez de chamar o dispatch diretamente, ele volta o "Assunto" para o estado de 'classificado',
+    # mas com o novo alvo. Isso permite que as políticas sejam reavaliadas para o novo destino.
+    - type: syscall.timeline.update_span
+      id: "{{ when(type='dispatch_affair').id }}"
+      update:
+        status: "classified"
+        payload.classification.target_runtime: "ui_runtime"
+        payload.classification.original_target: "core_runtime"
+        payload.classification.reason: "Fallback due to core runtime failure."
